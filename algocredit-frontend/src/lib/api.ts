@@ -183,6 +183,104 @@ class OptimizedApiClient {
     })
   }
 
+  // Web3 Security API Methods
+  async analyzeTransaction(data: {
+    transaction_hash: string;
+    contract_address: string;
+    function_name: string;
+    parameters?: any[];
+    value?: number;
+  }, apiKey: string) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/web3-security/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Transaction analysis failed:', error)
+      throw error
+    }
+  }
+
+  async auditContract(data: {
+    contract_address: string;
+    contract_source?: string;
+    audit_depth: 'basic' | 'detailed' | 'comprehensive';
+  }, apiKey: string) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/web3-security/audit-contract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Contract audit failed:', error)
+      throw error
+    }
+  }
+
+  async startSecurityMonitoring(contracts: string[], apiKey: string) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/web3-security/monitor`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({ contracts })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Security monitoring failed:', error)
+      throw error
+    }
+  }
+
+  // WebSocket connection for real-time monitoring
+  connectSecurityWebSocket(apiKey: string, onMessage: (data: any) => void): WebSocket {
+    const wsUrl = `ws://localhost:8001/ws/security-monitor?api_key=${apiKey}`
+    const ws = new WebSocket(wsUrl)
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        onMessage(data)
+      } catch (error) {
+        console.error('WebSocket message parsing failed:', error)
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+
+    return ws
+  }
+
   // Cache management
   clearCache(): void {
     this.cache.clear()

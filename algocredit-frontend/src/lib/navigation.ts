@@ -37,8 +37,9 @@ export const navigation = [
     ],
   },
   {
-    title: 'API Reference',
+    title: 'Developer APIs',
     links: [
+      { title: 'Web3 Security API', href: '/api' },
       { title: 'Credit Scoring API', href: '/docs/api/credit-scoring' },
       { title: 'Loan Management API', href: '/docs/api/loans' },
       { title: 'Wallet Analysis API', href: '/docs/api/wallet-analysis' },

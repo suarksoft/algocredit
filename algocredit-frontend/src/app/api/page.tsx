@@ -12,12 +12,23 @@ export default function ApiPage() {
   const generateApiKey = async () => {
     setIsLoading(true)
     try {
-      // Simulate API key generation
-      const newKey = `ak_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-      setApiKey(newKey)
-      setTestResult(null)
+      const response = await fetch('http://localhost:8000/api/web3-security/generate-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setApiKey(data.api_key)
+        setTestResult(null)
+      } else {
+        throw new Error('Failed to generate API key')
+      }
     } catch (error) {
       console.error('API key generation failed:', error)
+      alert('API key generation failed. Make sure the backend is running.')
     }
     setIsLoading(false)
   }
@@ -30,7 +41,7 @@ export default function ApiPage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch('/api/web3-security/analyze', {
+      const response = await fetch('http://localhost:8000/api/web3-security/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,14 +50,21 @@ export default function ApiPage() {
         body: JSON.stringify({
           transaction_hash: '0x1234567890abcdef',
           contract_address: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567890ABCDEFG',
-          function_name: 'transfer'
+          function_name: 'transfer',
+          parameters: [],
+          value: 1000000
         })
       })
 
-      const result = await response.json()
-      setTestResult(JSON.stringify(result, null, 2))
+      if (response.ok) {
+        const result = await response.json()
+        setTestResult(JSON.stringify(result, null, 2))
+      } else {
+        const error = await response.json()
+        setTestResult(`Error ${response.status}: ${error.detail}`)
+      }
     } catch (error) {
-      setTestResult(`Error: ${error}`)
+      setTestResult(`Network Error: ${error}`)
     }
     setIsLoading(false)
   }

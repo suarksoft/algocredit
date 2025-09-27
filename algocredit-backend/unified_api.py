@@ -4,7 +4,7 @@ Corporate Treasury - Unified API
 Marketplace + Security APIs + RWA Integration
 """
 
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -15,6 +15,7 @@ import json
 import time
 import hashlib
 import random
+import asyncio
 from datetime import datetime, timedelta
 from statistics import mean
 
@@ -197,6 +198,35 @@ class DepositRequest(BaseModel):
 class FundingRequest(BaseModel):
     investor_id: int
     startup_id: int
+
+# Web3 Security API Models
+class TransactionAnalysisRequest(BaseModel):
+    transaction_hash: str
+    contract_address: str
+    function_name: str
+    parameters: Optional[List[Any]] = []
+    value: Optional[int] = 0
+
+class SecurityThreat(BaseModel):
+    type: str  # reentrancy, overflow, phishing, etc.
+    severity: str  # low, medium, high, critical
+    description: str
+    recommendation: str
+
+class TransactionAnalysisResponse(BaseModel):
+    risk_score: int  # 0-100
+    security_level: str  # LOW, MEDIUM, HIGH, CRITICAL
+    threats: List[SecurityThreat]
+    recommendations: List[str]
+    analysis_time: str
+
+class ContractAuditRequest(BaseModel):
+    contract_address: str
+    contract_source: Optional[str] = None
+    audit_depth: str = "basic"  # basic, detailed, comprehensive
+
+class SecurityMonitorRequest(BaseModel):
+    contracts: List[str]
 
 # Cache utilities
 def get_cache_key(endpoint: str, params: str = "") -> str:
@@ -646,6 +676,275 @@ async def get_metrics():
         "cache_entries": len(cache),
         "error_count": request_metrics["errors"]
     }
+
+# ==================== WEB3 SECURITY APIs ====================
+
+# API Key validation
+def validate_api_key(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """Validate API key for security endpoints"""
+    api_key = credentials.credentials
+    
+    conn = sqlite3.connect('corporate_treasury.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT tier, calls_per_day, calls_used FROM api_keys 
+        WHERE api_key = ?
+    ''', (api_key,))
+    
+    result = cursor.fetchone()
+    conn.close()
+    
+    if not result:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    
+    tier, calls_per_day, calls_used = result
+    
+    if calls_used >= calls_per_day:
+        raise HTTPException(status_code=429, detail="API rate limit exceeded")
+    
+    return api_key
+
+def analyze_transaction_security(request: TransactionAnalysisRequest) -> TransactionAnalysisResponse:
+    """Analyze transaction for security threats"""
+    threats = []
+    recommendations = []
+    
+    # Simulated security analysis
+    risk_score = random.randint(0, 100)
+    
+    # Check for common threats based on function name
+    if "transfer" in request.function_name.lower():
+        if request.value and request.value > 1000000:  # Large transfer
+            threats.append(SecurityThreat(
+                type="high_value_transfer",
+                severity="medium",
+                description="Large value transfer detected",
+                recommendation="Verify recipient address and amount"
+            ))
+            risk_score += 20
+    
+    if "approve" in request.function_name.lower():
+        threats.append(SecurityThreat(
+            type="unlimited_approval",
+            severity="high",
+            description="Unlimited token approval detected",
+            recommendation="Consider using limited approval amounts"
+        ))
+        risk_score += 30
+    
+    # Contract address analysis
+    if len(request.contract_address) != 58:  # Invalid Algorand address
+        threats.append(SecurityThreat(
+            type="invalid_address",
+            severity="critical",
+            description="Invalid contract address format",
+            recommendation="Verify contract address before proceeding"
+        ))
+        risk_score += 50
+    
+    # Determine security level
+    if risk_score >= 80:
+        security_level = "CRITICAL"
+    elif risk_score >= 60:
+        security_level = "HIGH"
+    elif risk_score >= 30:
+        security_level = "MEDIUM"
+    else:
+        security_level = "LOW"
+    
+    # Generate recommendations
+    if threats:
+        recommendations.append("Review all detected threats before proceeding")
+        recommendations.append("Consider using a multi-signature wallet for high-value transactions")
+    else:
+        recommendations.append("Transaction appears safe to proceed")
+    
+    return TransactionAnalysisResponse(
+        risk_score=min(risk_score, 100),
+        security_level=security_level,
+        threats=threats,
+        recommendations=recommendations,
+        analysis_time=datetime.now().isoformat()
+    )
+
+@app.post("/api/web3-security/analyze", response_model=TransactionAnalysisResponse)
+async def analyze_transaction(
+    request: TransactionAnalysisRequest,
+    api_key: str = Depends(validate_api_key)
+):
+    """Analyze transaction for security threats"""
+    try:
+        # Update API usage
+        conn = sqlite3.connect('corporate_treasury.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE api_keys SET calls_used = calls_used + 1 
+            WHERE api_key = ?
+        ''', (api_key,))
+        conn.commit()
+        conn.close()
+        
+        # Perform analysis
+        analysis = analyze_transaction_security(request)
+        
+        return analysis
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/api/web3-security/audit-contract")
+async def audit_contract(
+    request: ContractAuditRequest,
+    api_key: str = Depends(validate_api_key)
+):
+    """Audit smart contract for security issues"""
+    try:
+        # Update API usage
+        conn = sqlite3.connect('corporate_treasury.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE api_keys SET calls_used = calls_used + 1 
+            WHERE api_key = ?
+        ''', (api_key,))
+        conn.commit()
+        conn.close()
+        
+        # Simulated contract audit
+        vulnerabilities = []
+        
+        if request.audit_depth == "comprehensive":
+            vulnerabilities.extend([
+                {
+                    "type": "reentrancy",
+                    "severity": "medium",
+                    "line": 45,
+                    "description": "Potential reentrancy vulnerability in transfer function"
+                },
+                {
+                    "type": "access_control",
+                    "severity": "low",
+                    "line": 23,
+                    "description": "Missing access control on admin function"
+                }
+            ])
+        
+        return {
+            "contract_address": request.contract_address,
+            "audit_depth": request.audit_depth,
+            "overall_score": random.randint(70, 95),
+            "vulnerabilities": vulnerabilities,
+            "recommendations": [
+                "Implement reentrancy guards",
+                "Add proper access controls",
+                "Use latest compiler version"
+            ],
+            "audit_time": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Audit failed: {str(e)}")
+
+@app.post("/api/web3-security/monitor")
+async def start_monitoring(
+    request: SecurityMonitorRequest,
+    api_key: str = Depends(validate_api_key)
+):
+    """Start real-time security monitoring for contracts"""
+    try:
+        # Update API usage
+        conn = sqlite3.connect('corporate_treasury.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE api_keys SET calls_used = calls_used + 1 
+            WHERE api_key = ?
+        ''', (api_key,))
+        conn.commit()
+        conn.close()
+        
+        return {
+            "status": "monitoring_started",
+            "contracts": request.contracts,
+            "monitor_id": f"monitor_{random.randint(1000, 9999)}",
+            "websocket_url": f"ws://localhost:8000/ws/security-monitor?api_key={api_key}",
+            "started_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Monitoring failed: {str(e)}")
+
+# WebSocket endpoint for real-time monitoring
+@app.websocket("/ws/security-monitor")
+async def websocket_security_monitor(websocket: WebSocket, api_key: str):
+    """WebSocket endpoint for real-time security monitoring"""
+    # Validate API key
+    conn = sqlite3.connect('corporate_treasury.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT tier FROM api_keys WHERE api_key = ?', (api_key,))
+    result = cursor.fetchone()
+    conn.close()
+    
+    if not result:
+        await websocket.close(code=1008, reason="Invalid API key")
+        return
+    
+    await websocket.accept()
+    
+    try:
+        # Send initial connection message
+        await websocket.send_json({
+            "type": "connection",
+            "message": "Security monitoring active",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        # Simulate real-time security alerts
+        while True:
+            await asyncio.sleep(10)  # Send alert every 10 seconds
+            
+            alert = {
+                "type": "security_alert",
+                "threat_type": random.choice(["suspicious_transaction", "contract_interaction", "high_value_transfer"]),
+                "severity": random.choice(["low", "medium", "high"]),
+                "contract_address": "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567890ABCDEFG",
+                "description": "Suspicious activity detected",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            await websocket.send_json(alert)
+            
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+    finally:
+        await websocket.close()
+
+# Generate API key endpoint
+@app.post("/api/web3-security/generate-key")
+async def generate_api_key(user_email: str = "demo@example.com"):
+    """Generate new API key"""
+    try:
+        new_key = f"ak_{hashlib.md5(f'{user_email}_{time.time()}'.encode()).hexdigest()}"
+        
+        conn = sqlite3.connect('corporate_treasury.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO api_keys (api_key, tier, calls_per_day, calls_used)
+            VALUES (?, 'free', 1000, 0)
+        ''', (new_key,))
+        
+        conn.commit()
+        conn.close()
+        
+        return {
+            "api_key": new_key,
+            "tier": "free",
+            "calls_per_day": 1000,
+            "created_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Key generation failed: {str(e)}")
 
 # Health check for frontend
 @app.get("/health")
