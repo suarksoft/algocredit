@@ -5,6 +5,7 @@
 
 'use client'
 
+import React, { useEffect } from 'react'
 import { useWalletStore } from '@/stores/walletStore'
 import { Button } from './Button'
 import { 
@@ -14,7 +15,12 @@ import {
   ArrowPathIcon 
 } from '@heroicons/react/24/outline'
 
-export function WalletConnect() {
+interface WalletConnectProps {
+  onConnect?: (address: string) => void
+  onDisconnect?: () => void
+}
+
+export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = {}) {
   const {
     isConnected,
     isConnecting,
@@ -33,6 +39,32 @@ export function WalletConnect() {
   const formatBalance = (balance: number) => {
     return (balance / 1_000_000).toFixed(6) // Convert microAlgos to ALGO
   }
+
+  // Handle connect/disconnect callbacks
+  const handleConnect = async () => {
+    try {
+      await connectWallet()
+      if (walletAddress && onConnect) {
+        onConnect(walletAddress)
+      }
+    } catch (error) {
+      console.error('Wallet connection failed:', error)
+    }
+  }
+
+  const handleDisconnect = () => {
+    disconnectWallet()
+    if (onDisconnect) {
+      onDisconnect()
+    }
+  }
+
+  // Call onConnect when wallet becomes connected
+  useEffect(() => {
+    if (isConnected && walletAddress && onConnect) {
+      onConnect(walletAddress)
+    }
+  }, [isConnected, walletAddress, onConnect])
 
   if (error) {
     return (
@@ -75,7 +107,7 @@ export function WalletConnect() {
               {formatBalance(balance)} ALGO
             </p>
             <Button
-              onClick={disconnectWallet}
+              onClick={handleDisconnect}
               variant="secondary"
               className="mt-1 h-6 border-green-200 px-2 text-xs text-green-700 hover:bg-green-100 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-900/40"
             >
@@ -105,7 +137,7 @@ export function WalletConnect() {
           </div>
         </div>
         <Button
-          onClick={connectWallet}
+          onClick={handleConnect}
           disabled={isConnecting}
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 text-base font-semibold whitespace-nowrap"
         >
