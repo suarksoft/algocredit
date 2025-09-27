@@ -1,7 +1,7 @@
 # ⚡ 24 SAATLİK SPRINT - CORPORATE TREASURY MVP
 
 ## 🎯 **HEDEF**
-24 saat içinde çalışan Corporate Treasury platformu - Deposit, Yield, Instant Credit Line
+AlgoCredit saat içinde çalışan Corporate Treasury platformu - Deposit, Yield, Instant Credit Line
 
 ---
 

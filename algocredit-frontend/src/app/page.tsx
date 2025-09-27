@@ -39,29 +39,29 @@ export default function HomePage() {
 
   const fetchMarketplaceStats = async () => {
     try {
-      const response = await fetch('http://localhost:8002/marketplace/stats')
+      const response = await fetch('http://localhost:8000/api/marketplace/stats')
       if (response.ok) {
         const data = await response.json()
         setStats(data)
       } else {
         console.error('Failed to fetch stats:', response.status)
-        // Set mock data for demo
+        // Set demo data
         setStats({
-          total_investors: 0,
-          total_startups: 0,
-          total_funding_volume: 0,
-          available_opportunities: 0
+          total_investors: 3,
+          total_startups: 4,
+          total_funding_volume: 125000,
+          available_opportunities: 4
         })
       }
       setLoading(false)
     } catch (error) {
       console.error('Failed to fetch marketplace stats:', error)
-      // Set mock data for demo
+      // Set demo data as fallback
       setStats({
-        total_investors: 0,
-        total_startups: 0,
-        total_funding_volume: 0,
-        available_opportunities: 0
+        total_investors: 3,
+        total_startups: 4,
+        total_funding_volume: 125000,
+        available_opportunities: 4
       })
       setLoading(false)
     }
