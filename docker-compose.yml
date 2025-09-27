@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: algocredit-db
+    environment:
+      POSTGRES_DB: algocredit
+      POSTGRES_USER: algocredit
+      POSTGRES_PASSWORD: algocredit_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algocredit -d algocredit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - algocredit-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: algocredit-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - algocredit-network
+
+  # AlgoCredit Backend API
+  backend:
+    build:
+      context: ./algocredit-backend
+      dockerfile: Dockerfile
+    container_name: algocredit-backend
+    environment:
+      - DATABASE_URL=postgresql://algocredit:algocredit_password@postgres:5432/algocredit
+      - REDIS_URL=redis://redis:6379
+      - ALGORAND_NETWORK=testnet
+      - ALGORAND_API_URL=https://testnet-api.algonode.cloud
+      - JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./algocredit-backend:/app
+      - /app/venv  # Exclude virtual environment
+    restart: unless-stopped
+    networks:
+      - algocredit-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # AlgoCredit Frontend
+  frontend:
+    build:
+      context: ./algocredit-frontend
+      dockerfile: Dockerfile
+    container_name: algocredit-frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_ALGORAND_NETWORK=testnet
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - algocredit-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: algocredit-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - algocredit-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  algocredit-network:
+    driver: bridge

@@ -1,0 +1,261 @@
+"""
+Algorand blockchain service for AlgoCredit
+Handles wallet analysis, transaction history, and smart contract interactions
+"""
+
+import os
+from typing import Dict, List, Optional, Tuple
+from datetime import datetime, timedelta
+import json
+
+from algosdk.v2client import algod, indexer
+from algosdk import transaction, account
+from algosdk.atomic_transaction_composer import AtomicTransactionComposer
+import pandas as pd
+
+
+class AlgorandService:
+    """Service class for Algorand blockchain operations"""
+    
+    def __init__(self):
+        """Initialize Algorand clients"""
+        # Use public TestNet nodes
+        self.algod_client = algod.AlgodClient(
+            algod_token="",
+            algod_address="https://testnet-api.algonode.cloud"
+        )
+        
+        self.indexer_client = indexer.IndexerClient(
+            indexer_token="",
+            indexer_address="https://testnet-idx.algonode.cloud"
+        )
+        
+        # Contract configuration (will be set after deployment)
+        self.loan_pool_app_id = os.getenv("LOAN_POOL_CONTRACT_ID")
+        self.admin_private_key = os.getenv("ADMIN_PRIVATE_KEY")
+        
+    def is_valid_address(self, address: str) -> bool:
+        """Validate Algorand address format"""
+        try:
+            # Algorand addresses are 58 characters long
+            if len(address) != 58:
+                return False
+            
+            # Try to decode the address
+            import algosdk.encoding as encoding
+            encoding.decode_address(address)
+            return True
+        except:
+            return False
+    
+    async def get_account_info(self, address: str) -> Dict:
+        """Get basic account information"""
+        try:
+            if not self.is_valid_address(address):
+                raise ValueError("Invalid Algorand address")
+            
+            account_info = self.algod_client.account_info(address)
+            return {
+                "address": address,
+                "balance": account_info.get("amount", 0),
+                "min_balance": account_info.get("min-balance", 0),
+                "created_at_round": account_info.get("created-at-round", 0),
+                "assets": account_info.get("assets", []),
+                "apps_local_state": account_info.get("apps-local-state", [])
+            }
+        except Exception as e:
+            print(f"Error getting account info: {e}")
+            return {}
+    
+    async def get_transaction_history(self, address: str, limit: int = 1000) -> List[Dict]:
+        """Get transaction history for an address"""
+        try:
+            if not self.is_valid_address(address):
+                raise ValueError("Invalid Algorand address")
+            
+            # Search for transactions
+            response = self.indexer_client.search_transactions(
+                address=address,
+                limit=limit
+            )
+            
+            transactions = []
+            for txn in response.get("transactions", []):
+                transactions.append({
+                    "id": txn.get("id"),
+                    "round": txn.get("confirmed-round"),
+                    "timestamp": txn.get("round-time"),
+                    "type": txn.get("tx-type"),
+                    "sender": txn.get("sender"),
+                    "receiver": txn.get("payment-transaction", {}).get("receiver"),
+                    "amount": txn.get("payment-transaction", {}).get("amount", 0),
+                    "fee": txn.get("fee", 0),
+                    "note": txn.get("note", "")
+                })
+            
+            return transactions
+        except Exception as e:
+            print(f"Error getting transaction history: {e}")
+            return []
+    
+    async def analyze_wallet_behavior(self, address: str) -> Dict:
+        """Analyze wallet behavior for credit scoring"""
+        try:
+            # Get account info and transaction history
+            account_info = await self.get_account_info(address)
+            transactions = await self.get_transaction_history(address)
+            
+            if not account_info or not transactions:
+                return self._default_wallet_analysis(address)
+            
+            # Calculate account age
+            if account_info.get("created_at_round", 0) > 0:
+                # Approximate: 1 round = 4.5 seconds on average
+                account_age_seconds = (account_info["created_at_round"]) * 4.5
+                account_age_days = max(1, int(account_age_seconds / 86400))
+            else:
+                account_age_days = 1
+            
+            # Analyze transactions
+            df = pd.DataFrame(transactions)
+            if df.empty:
+                return self._default_wallet_analysis(address)
+            
+            # Calculate metrics
+            total_transactions = len(transactions)
+            total_volume = df['amount'].sum()
+            unique_counterparties = len(set(df['receiver'].dropna()) | set(df['sender'].dropna())) - 1
+            
+            # Calculate average balance (simplified)
+            current_balance = account_info.get("balance", 0)
+            average_balance = current_balance  # Simplified for MVP
+            
+            # Calculate frequency score
+            transactions_per_day = total_transactions / max(account_age_days, 1)
+            frequency_score = min(100, transactions_per_day * 10)
+            
+            # Calculate stability score based on balance
+            stability_score = min(100, (current_balance / 1000000) * 20)  # 1 ALGO = 20 points
+            
+            # Calculate asset diversity score
+            num_assets = len(account_info.get("assets", []))
+            diversity_score = min(100, num_assets * 25)
+            
+            # Calculate DApp usage score
+            num_app_interactions = len(account_info.get("apps_local_state", []))
+            dapp_score = min(100, num_app_interactions * 30)
+            
+            return {
+                "wallet_address": address,
+                "account_age_days": account_age_days,
+                "total_transactions": total_transactions,
+                "total_volume": total_volume,
+                "unique_counterparties": unique_counterparties,
+                "current_balance": current_balance,
+                "average_balance": average_balance,
+                "balance_stability_score": round(stability_score, 2),
+                "transaction_frequency_score": round(frequency_score, 2),
+                "asset_diversity_score": round(diversity_score, 2),
+                "dapp_usage_score": round(dapp_score, 2),
+                "analysis_timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            print(f"Error analyzing wallet behavior: {e}")
+            return self._default_wallet_analysis(address)
+    
+    def _default_wallet_analysis(self, address: str) -> Dict:
+        """Return default analysis for new/empty wallets"""
+        return {
+            "wallet_address": address,
+            "account_age_days": 1,
+            "total_transactions": 0,
+            "total_volume": 0,
+            "unique_counterparties": 0,
+            "current_balance": 0,
+            "average_balance": 0,
+            "balance_stability_score": 0.0,
+            "transaction_frequency_score": 0.0,
+            "asset_diversity_score": 0.0,
+            "dapp_usage_score": 0.0,
+            "analysis_timestamp": datetime.now().isoformat()
+        }
+    
+    async def call_smart_contract(self, app_id: int, method: str, args: List, sender_private_key: str) -> str:
+        """Call smart contract method"""
+        try:
+            # Get sender address
+            sender_address = account.address_from_private_key(sender_private_key)
+            
+            # Get suggested parameters
+            params = self.algod_client.suggested_params()
+            
+            # Create application call transaction
+            txn = transaction.ApplicationCallTxn(
+                sender=sender_address,
+                sp=params,
+                index=app_id,
+                on_complete=transaction.OnComplete.NoOpOC,
+                app_args=[method.encode()] + [str(arg).encode() for arg in args]
+            )
+            
+            # Sign transaction
+            signed_txn = txn.sign(sender_private_key)
+            
+            # Submit transaction
+            tx_id = self.algod_client.send_transaction(signed_txn)
+            
+            # Wait for confirmation
+            confirmed_txn = transaction.wait_for_confirmation(self.algod_client, tx_id, 4)
+            
+            return tx_id
+            
+        except Exception as e:
+            print(f"Error calling smart contract: {e}")
+            raise
+    
+    async def set_credit_score(self, wallet_address: str, credit_score: int) -> str:
+        """Set credit score for a wallet address (admin only)"""
+        if not self.admin_private_key or not self.loan_pool_app_id:
+            raise ValueError("Admin private key or contract ID not configured")
+        
+        return await self.call_smart_contract(
+            app_id=int(self.loan_pool_app_id),
+            method="set_credit_score",
+            args=[credit_score, wallet_address],
+            sender_private_key=self.admin_private_key
+        )
+    
+    async def issue_loan(self, borrower_private_key: str, amount: int, term_months: int = 12) -> str:
+        """Issue loan to borrower"""
+        if not self.loan_pool_app_id:
+            raise ValueError("Contract ID not configured")
+        
+        return await self.call_smart_contract(
+            app_id=int(self.loan_pool_app_id),
+            method="issue_loan",
+            args=[amount, term_months],
+            sender_private_key=borrower_private_key
+        )
+    
+    async def get_network_status(self) -> Dict:
+        """Get Algorand network status"""
+        try:
+            status = self.algod_client.status()
+            return {
+                "network": "testnet",
+                "last_round": status.get("last-round", 0),
+                "time_since_last_round": status.get("time-since-last-round", 0),
+                "catchup_time": status.get("catchup-time", 0),
+                "node_health": "healthy"
+            }
+        except Exception as e:
+            return {
+                "network": "testnet",
+                "error": str(e),
+                "node_health": "unhealthy"
+            }
+
+
+# Global instance
+algorand_service = AlgorandService()
