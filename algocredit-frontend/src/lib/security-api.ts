@@ -86,26 +86,59 @@ class AlgoCreditSecurityAPI {
   }
 
   /**
-   * Generate new API key
+   * Generate wallet-based API key
    */
-  async generateApiKey(userId: string, tier: string = 'free'): Promise<{
+  async generateWalletApiKey(walletAddress: string, tier: string = 'free'): Promise<{
     api_key: string
     tier: string
+    wallet_address: string
+    status: 'new' | 'existing'
     usage_instructions: any
   }> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/api/v1/security/generate-key?user_id=${userId}&tier=${tier}`, {
+      const response = await fetch(`${this.config.baseUrl}/api/v1/security/generate-key?wallet_address=${walletAddress}&tier=${tier}`, {
         method: 'POST',
-        headers: this.baseHeaders
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
       if (!response.ok) {
-        throw new Error(`Failed to generate API key: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Failed to generate API key: ${response.status}`)
       }
 
       return await response.json()
     } catch (error) {
-      console.error('Error generating API key:', error)
+      console.error('Error generating wallet API key:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get existing API key for wallet
+   */
+  async getWalletApiKey(walletAddress: string): Promise<{
+    wallet_address: string
+    has_api_key: boolean
+    api_key?: string
+    usage_stats?: any
+  }> {
+    try {
+      const response = await fetch(`${this.config.baseUrl}/api/v1/security/wallet-key/${walletAddress}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to get wallet API key: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error getting wallet API key:', error)
       throw error
     }
   }
@@ -268,7 +301,7 @@ class AlgoCreditSecurityAPI {
 // Export singleton instance
 export const securityAPI = new AlgoCreditSecurityAPI({
   apiKey: process.env.NEXT_PUBLIC_ALGOCREDIT_API_KEY || 'ac_live_915aa39a909e88d18f71c400bad2cfb0',
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005',
   tier: 'pro'
 })
 

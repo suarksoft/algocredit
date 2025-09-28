@@ -9,10 +9,7 @@ import { useState, useEffect } from 'react'
 import { WalletConnect } from '@/components/WalletConnect'
 import { Button } from '@/components/Button'
 import { useSecurityStore } from '@/stores/securityStore'
-import { useWalletStore } from '@/stores/walletStore'
-import { securityAPI } from '@/lib/security-api'
 import SecurityDashboard from '@/components/SecurityDashboard'
-import AIRiskCalculator from '@/components/AIRiskCalculator'
 import { 
   ShieldCheckIcon, 
   CpuChipIcon, 
@@ -24,14 +21,13 @@ import {
   CheckBadgeIcon,
   ArrowTrendingUpIcon,
   BuildingOffice2Icon,
-  CurrencyDollarIcon, 
+  CurrencyDollarIcon,
   UsersIcon,
   ArrowRightIcon,
   CheckCircleIcon,
   CodeBracketIcon,
   CloudIcon,
-  CogIcon,
-  EyeIcon
+  CogIcon
 } from '@heroicons/react/24/outline'
 
 export default function HomePage() {
@@ -40,12 +36,10 @@ export default function HomePage() {
     threatLevel, 
     isLoadingDashboard, 
     loadSecurityDashboard,
-    setApiKey,
+    generateApiKey,
     apiKey,
     tier
   } = useSecurityStore()
-
-  const { isConnected, walletAddress } = useWalletStore()
 
   const [stats, setStats] = useState({
     totalApiKeys: 0,
@@ -57,9 +51,6 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showSecurityDemo, setShowSecurityDemo] = useState(false)
   const [demoApiKey, setDemoApiKey] = useState('')
-  const [isGeneratingKey, setIsGeneratingKey] = useState(false)
-  const [walletApiKey, setWalletApiKey] = useState('')
-  const [autoRiskAnalysis, setAutoRiskAnalysis] = useState<any>(null)
 
   useEffect(() => {
     // Fetch security platform stats
@@ -82,93 +73,19 @@ export default function HomePage() {
 
     fetchStats()
     
-    // Note: Security dashboard disabled for blockchain-first approach
-    // if (apiKey) {
-    //   loadSecurityDashboard()
-    // }
+    // Load security dashboard if available
+    if (apiKey) {
+      loadSecurityDashboard()
+    }
   }, [apiKey])
 
-  // Check for existing API key when wallet connects
-  useEffect(() => {
-    if (isConnected && walletAddress) {
-      checkWalletApiKey()
-    }
-  }, [isConnected, walletAddress])
-
-  // Auto AI Risk Analysis when wallet connects
-  useEffect(() => {
-    const performAutoRiskAnalysis = async () => {
-      if (isConnected && walletAddress && !autoRiskAnalysis) {
-        try {
-          console.log('🤖 Performing auto AI risk analysis for wallet:', walletAddress)
-          const response = await fetch('http://localhost:8001/api/v1/credit/ai-risk-analysis', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ wallet_address: walletAddress })
-          })
-
-          if (response.ok) {
-            const analysis = await response.json()
-            setAutoRiskAnalysis(analysis)
-            console.log('✅ Auto risk analysis complete:', analysis)
-          }
-        } catch (error) {
-          console.error('❌ Auto risk analysis failed:', error)
-        }
-      }
-    }
-
-    performAutoRiskAnalysis()
-  }, [isConnected, walletAddress, autoRiskAnalysis])
-
-  const checkWalletApiKey = async () => {
-    if (!walletAddress) return
-    
+  const handleGenerateDemoKey = async () => {
     try {
-      const result = await securityAPI.getWalletApiKey(walletAddress)
-      if (result.has_api_key && result.api_key) {
-        setWalletApiKey(result.api_key)
-        setApiKey(result.api_key, 'pro')
-        console.log('✅ Existing API key found for wallet:', result.api_key.slice(0, 20) + '...')
-      }
-    } catch (error) {
-      console.log('No existing API key found for wallet')
-    }
-  }
-
-  const handleGenerateWalletApiKey = async () => {
-    if (!isConnected || !walletAddress) {
-      alert('🔗 Please connect your Algorand wallet first to generate an API key')
-      return
-    }
-
-    setIsGeneratingKey(true)
-    
-    try {
-      console.log('🔑 Generating API key for wallet:', walletAddress)
-      
-      // Generate real API key from backend
-      const result = await securityAPI.generateWalletApiKey(walletAddress, 'pro')
-      
-      setWalletApiKey(result.api_key)
-      setApiKey(result.api_key, result.tier)
+      const newKey = await generateApiKey('demo_user_' + Date.now(), 'pro')
+      setDemoApiKey(newKey)
       setShowSecurityDemo(true)
-      
-      // Success message
-      const message = result.status === 'existing' 
-        ? `✅ Your existing API key has been loaded!\n\nAPI Key: ${result.api_key.slice(0, 20)}...\nTier: ${result.tier.toUpperCase()}\nWallet: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}\n\n🔒 Real API key from secure backend!`
-        : `🎉 New API key generated successfully!\n\nAPI Key: ${result.api_key.slice(0, 20)}...\nTier: ${result.tier.toUpperCase()}\nWallet: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}\n\n🔒 Real API key linked to your wallet!\n🛡️ Stored securely in Redis + Smart Contract\n⚡ Ready for enterprise security features!`
-      
-      alert(message)
-      
     } catch (error) {
-      console.error('Error generating wallet API key:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`❌ API Key Generation Failed\n\nError: ${errorMessage}\n\nPlease check:\n• Wallet is connected: ${isConnected ? '✅' : '❌'}\n• Backend status\n• Network connectivity\n\nTry again in a moment`)
-    } finally {
-      setIsGeneratingKey(false)
+      console.error('Error generating demo key:', error)
     }
   }
 
@@ -185,230 +102,78 @@ export default function HomePage() {
         {/* Header Section */}
         <header className="pt-8 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+            <div className="text-center">
               {/* Logo and Brand */}
-            <div className="mb-8">
+              <div className="mb-8">
                 <div className="mx-auto h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-600 flex items-center justify-center mb-6 shadow-2xl">
                   <ShieldCheckIcon className="h-10 w-10 text-white" />
                 </div>
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent mb-4">
                   AlgoCredit
-              </h1>
+                </h1>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30">
                   <LockClosedIcon className="h-4 w-4 text-blue-300" />
                   <span className="text-blue-100 font-medium">Web3 Security Firewall</span>
                 </div>
-            </div>
-
-              {/* Hero Message */}
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 max-w-4xl mx-auto leading-tight">
-                Enterprise-Grade Security Platform for 
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Algorand Ecosystem</span>
-              </h2>
-              
-              <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Protect your Web3 applications with advanced threat detection, AI-powered risk assessment, 
-                and enterprise-grade security infrastructure built specifically for Algorand.
-              </p>
-
-              {/* Hero Code Showcase */}
-              <div className="max-w-5xl mx-auto mb-12">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                  {/* Left: Value Props */}
-                  <div className="space-y-6">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-red-500/20 rounded-lg">
-                          <ExclamationTriangleIcon className="h-6 w-6 text-red-300" />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg">Real-time Threat Detection</h4>
-                          <p className="text-blue-200 text-sm">Block malicious transactions before they execute</p>
-                        </div>
-                      </div>
-            </div>
-
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-purple-500/20 rounded-lg">
-                          <CpuChipIcon className="h-6 w-6 text-purple-300" />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg">AI-Powered Credit Scoring</h4>
-                          <p className="text-blue-200 text-sm">Instant risk assessment with 95% accuracy</p>
-                        </div>
-                      </div>
-            </div>
-
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-blue-500/20 rounded-lg">
-                          <LockClosedIcon className="h-6 w-6 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="text-white font-bold text-lg">Enterprise API Security</h4>
-                          <p className="text-blue-200 text-sm">SOC 2 compliant with advanced rate limiting</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-                  {/* Right: AI Risk Calculator */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <div className="text-center mb-6">
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="p-3 bg-purple-500/20 rounded-full mr-4">
-                          <CpuChipIcon className="h-8 w-8 text-purple-300" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-xl">AI Risk Analysis</h3>
-                          <p className="text-blue-200 text-sm">Advanced wallet risk assessment</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <AIRiskCalculator 
-                      onAnalysisComplete={(analysis) => {
-                        console.log('AI Risk Analysis Complete:', analysis)
-                      }}
-                    />
-                  </div>
-                </div>
               </div>
 
-              {/* Wallet Connection & API Key Generation */}
-              <div className="space-y-6 mb-12">
-                {/* Wallet Connection */}
-                {!isConnected ? (
-                  <div className="max-w-2xl mx-auto">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center">
-                      <h3 className="text-white font-bold text-xl mb-4">
-                        🔗 Connect Wallet to Get Started
-                      </h3>
-                      <p className="text-blue-200 mb-6">
-                        Connect your Algorand wallet to generate a personalized API key and access the security platform
-                      </p>
-                      <WalletConnect />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="max-w-2xl mx-auto">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center">
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <CheckCircleIcon className="h-6 w-6 text-green-400" />
-                        <h3 className="text-white font-bold text-xl">
-                          Wallet Connected
-                        </h3>
-                      </div>
-                      <p className="text-blue-200 mb-4">
-                        {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
-                      </p>
-                      
-                      {walletApiKey ? (
-                        <div className="space-y-4">
-                          <div className="bg-green-900/20 rounded-lg p-4 border border-green-500/30">
-                            <p className="text-green-300 font-medium mb-2">✅ API Key Active</p>
-                            <p className="text-green-200 text-sm font-mono">
-                              {walletApiKey.slice(0, 20)}...
-            </p>
-          </div>
-                          <Button 
-                            onClick={() => setShowSecurityDemo(true)}
-                            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3"
-                          >
-                            <ChartBarIcon className="mr-2 h-5 w-5" />
-                            View Security Dashboard
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          onClick={handleGenerateWalletApiKey}
-                          disabled={isGeneratingKey}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white shadow-2xl px-8 py-4 text-lg font-semibold"
-                        >
-                          {isGeneratingKey ? (
-                            <>
-                              <div className="mr-2 h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                              Generating API Key...
-                            </>
-                          ) : (
-                            <>
-                              <BoltIcon className="mr-2 h-5 w-5" />
-                              Generate Your API Key
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
+               {/* Hero Message */}
+               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 max-w-5xl mx-auto leading-tight">
+                 <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                   Enterprise Web3 Security Firewall
+                 </span>
+                 <br />
+                 <span className="text-white text-2xl sm:text-3xl lg:text-4xl mt-2 block">
+                   for Algorand Ecosystem
+                 </span>
+               </h2>
+               
+               <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed font-light">
+                 Protect your Web3 applications with <span className="font-semibold text-white">advanced threat detection</span>, 
+                 <span className="font-semibold text-white"> AI-powered risk assessment</span>, and 
+                 <span className="font-semibold text-white"> enterprise-grade security infrastructure</span> built specifically for Algorand developers.
+               </p>
 
-                {/* Auto AI Risk Analysis Results */}
-                {autoRiskAnalysis && (
-                  <div className="max-w-2xl mx-auto mt-8">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-purple-500/20 rounded-lg">
-                          <CpuChipIcon className="h-6 w-6 text-purple-300" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-lg">AI Risk Analysis Complete</h3>
-                          <p className="text-blue-200 text-sm">Automated wallet assessment</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className={`text-2xl font-bold mb-1 ${
-                            autoRiskAnalysis.risk_level === 'LOW' ? 'text-green-400' :
-                            autoRiskAnalysis.risk_level === 'MEDIUM' ? 'text-yellow-400' : 'text-red-400'
-                          }`}>
-                            {autoRiskAnalysis.ai_risk_score}
-                          </div>
-                          <div className="text-sm text-blue-200">Risk Score</div>
-                        </div>
-                        
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-white mb-1">
-                            {autoRiskAnalysis.credit_score}
-                          </div>
-                          <div className="text-sm text-blue-200">Credit Score</div>
-                        </div>
-                        
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-white mb-1">
-                            {Math.round(autoRiskAnalysis.confidence * 100)}%
-                          </div>
-                          <div className="text-sm text-blue-200">AI Confidence</div>
-                        </div>
-          </div>
-          
-                      <div className={`p-3 rounded-lg border ${
-                        autoRiskAnalysis.risk_level === 'LOW' ? 'bg-green-900/20 border-green-500/30' :
-                        autoRiskAnalysis.risk_level === 'MEDIUM' ? 'bg-yellow-900/20 border-yellow-500/30' : 'bg-red-900/20 border-red-500/30'
-                      }`}>
-                        <p className={`font-medium ${
-                          autoRiskAnalysis.risk_level === 'LOW' ? 'text-green-300' :
-                          autoRiskAnalysis.risk_level === 'MEDIUM' ? 'text-yellow-300' : 'text-red-300'
-                        }`}>
-                          {autoRiskAnalysis.recommendation}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+               {/* Key Value Props */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto">
+                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                   <div className="text-center">
+                     <div className="text-3xl font-bold text-red-300 mb-1">&lt; 50ms</div>
+                     <div className="text-blue-200 text-sm">Threat Detection</div>
+                   </div>
+                 </div>
+                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                   <div className="text-center">
+                     <div className="text-3xl font-bold text-purple-300 mb-1">99.9%</div>
+                     <div className="text-blue-200 text-sm">Security Accuracy</div>
+                   </div>
+                 </div>
+                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                   <div className="text-center">
+                     <div className="text-3xl font-bold text-green-300 mb-1">15K+</div>
+                     <div className="text-blue-200 text-sm">Threats Blocked</div>
+                   </div>
+                 </div>
+               </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                <Button 
+                  onClick={handleGenerateDemoKey}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 px-8 py-4 text-lg font-semibold"
+                >
+                  <BoltIcon className="mr-2 h-5 w-5" />
+                  Get Free API Key
+                </Button>
                 
-                {/* Demo Button */}
-                <div className="text-center">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setShowSecurityDemo(true)}
-                    className="border-blue-400 text-blue-100 hover:bg-blue-500/10 backdrop-blur-sm px-6 py-3"
-                  >
-                    <ChartBarIcon className="mr-2 h-5 w-5" />
-                    View Live Security Demo
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowSecurityDemo(true)}
+                  className="border-blue-400 text-blue-100 hover:bg-blue-500/10 backdrop-blur-sm px-8 py-4 text-lg font-semibold"
+                >
+                  <ChartBarIcon className="mr-2 h-5 w-5" />
+                  View Security Demo
+                </Button>
               </div>
 
               {/* Trust Indicators */}
@@ -416,7 +181,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-2">
                   <CheckBadgeIcon className="h-5 w-5 text-green-400" />
                   <span>SOC 2 Compliant</span>
-            </div>
+                </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheckIcon className="h-5 w-5 text-blue-400" />
                   <span>Enterprise Security</span>
@@ -478,7 +243,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-green-500/20 rounded-lg">
                     <CheckCircleIcon className="h-6 w-6 text-green-300" />
-                </div>
+                  </div>
                   <ArrowTrendingUpIcon className="h-5 w-5 text-green-400" />
                 </div>
                 <h4 className="text-white font-semibold mb-2">Transactions Secured</h4>
@@ -493,7 +258,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-purple-500/20 rounded-lg">
                     <BuildingOffice2Icon className="h-6 w-6 text-purple-300" />
-                </div>
+                  </div>
                   <ArrowTrendingUpIcon className="h-5 w-5 text-green-400" />
                 </div>
                 <h4 className="text-white font-semibold mb-2">Enterprise Clients</h4>
@@ -577,7 +342,7 @@ export default function HomePage() {
                     <span>Usage Analytics</span>
                   </li>
                 </ul>
-            </div>
+              </div>
 
               {/* AI Credit Scoring */}
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
@@ -678,8 +443,8 @@ if (threatAnalysis.riskScore > 8.0) {
                        <div className="h-3 w-3 rounded-full bg-red-400"></div>
                        <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
                        <div className="h-3 w-3 rounded-full bg-green-400"></div>
-          </div>
-        </div>
+                     </div>
+                   </div>
                    <pre className="text-green-400 text-xs overflow-x-auto leading-relaxed">
 {`// AI-powered credit scoring
 const creditScore = await algoCredit.analyzeWallet({
@@ -700,7 +465,7 @@ const creditScore = await algoCredit.analyzeWallet({
 // Result: 750 (Excellent Credit)
 console.log(\`Score: \${creditScore.score}\`)`}
                    </pre>
-      </div>
+                 </div>
 
                  {/* API Integration Example */}
                  <div className="bg-slate-900/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 shadow-2xl">
@@ -745,13 +510,13 @@ if (validation.validation_result.risk_score > 5.0) {
 }`}
                    </pre>
                  </div>
-          </div>
+               </div>
 
               {/* Enterprise Features List */}
               <div className="space-y-8">
                 {/* Performance Metrics */}
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="p-3 bg-blue-500/20 rounded-xl flex-shrink-0">
                       <BoltIcon className="h-6 w-6 text-blue-300" />
                     </div>
@@ -769,8 +534,8 @@ if (validation.validation_result.risk_score > 5.0) {
                         <div>
                           <span className="text-blue-200">Throughput:</span>
                           <span className="ml-2 font-bold text-green-400">10K+ TPS</span>
-                  </div>
-                  <div>
+                        </div>
+                        <div>
                           <span className="text-blue-200">Global CDN:</span>
                           <span className="ml-2 font-bold text-green-400">15 Regions</span>
                         </div>
@@ -781,11 +546,11 @@ if (validation.validation_result.risk_score > 5.0) {
 
                 {/* Security Capabilities */}
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="p-3 bg-red-500/20 rounded-xl flex-shrink-0">
                       <ExclamationTriangleIcon className="h-6 w-6 text-red-300" />
-                  </div>
-                  <div>
+                    </div>
+                    <div>
                       <h5 className="text-white font-bold text-lg mb-3">Advanced Threat Protection</h5>
                       <ul className="space-y-2 text-blue-200">
                         <li className="flex items-center gap-2">
@@ -811,7 +576,7 @@ if (validation.validation_result.risk_score > 5.0) {
 
                 {/* Enterprise Features */}
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="p-3 bg-purple-500/20 rounded-xl flex-shrink-0">
                       <BuildingOffice2Icon className="h-6 w-6 text-purple-300" />
                     </div>
@@ -883,8 +648,8 @@ if (validation.validation_result.risk_score > 5.0) {
                       <p className="text-blue-300 text-sm">Demo API Key: <code className="bg-slate-800 px-2 py-1 rounded">{demoApiKey.slice(0, 20)}...</code></p>
                     </div>
                   )}
-            </div>
-
+                </div>
+                
                 <SecurityDashboard apiKey={demoApiKey || apiKey} />
               </div>
             </div>
@@ -901,7 +666,7 @@ if (validation.validation_result.risk_score > 5.0) {
               <p className="text-blue-200 text-xl max-w-3xl mx-auto">
                 Flexible pricing for startups to enterprise. Start free, scale as you grow.
               </p>
-                  </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Free Tier */}
@@ -930,13 +695,12 @@ if (validation.validation_result.risk_score > 5.0) {
                   </li>
                 </ul>
                 <Button 
-                  onClick={handleGenerateWalletApiKey}
-                  disabled={!isConnected || isGeneratingKey}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white"
+                  onClick={handleGenerateDemoKey}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  {!isConnected ? 'Connect Wallet First' : 'Get Free API Key'}
+                  Get Free API Key
                 </Button>
-                  </div>
+              </div>
 
               {/* Pro Tier */}
               <div className="bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm rounded-2xl p-8 border-2 border-blue-400/50 transform scale-105">
@@ -973,7 +737,7 @@ if (validation.validation_result.risk_score > 5.0) {
                 <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   Start Pro Trial
                 </Button>
-                  </div>
+              </div>
 
               {/* Enterprise Tier */}
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
@@ -1015,7 +779,7 @@ if (validation.validation_result.risk_score > 5.0) {
           </div>
         </section>
 
-      {/* CTA Section */}
+        {/* CTA Section */}
         <section className="py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-2xl p-12 border border-blue-400/30">
@@ -1033,7 +797,7 @@ if (validation.validation_result.risk_score > 5.0) {
                 >
                   <ArrowRightIcon className="mr-2 h-5 w-5" />
                   Start Building Securely
-              </Button>
+                </Button>
                 
                 <Button 
                   variant="outline"
@@ -1042,7 +806,7 @@ if (validation.validation_result.risk_score > 5.0) {
                 >
                   <CodeBracketIcon className="mr-2 h-5 w-5" />
                   API Documentation
-              </Button>
+                </Button>
               </div>
 
               {/* Security Badges */}
@@ -1084,9 +848,9 @@ if (validation.validation_result.risk_score > 5.0) {
               <div className="mt-6 pt-6 border-t border-white/20">
                 <p className="text-blue-300 text-sm">
                   © 2024 AlgoCredit. Built for Algorand Foundation. Enterprise Security Platform.
-            </p>
-          </div>
-        </div>
+                </p>
+              </div>
+            </div>
           </div>
         </footer>
       </div>

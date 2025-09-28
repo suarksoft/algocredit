@@ -141,6 +141,28 @@ export async function deploy() {
     })
     console.log(`💎 Real loan funding: ${realFundingResponse.return}`)
     
+    // Test API key registration
+    const apiKeyResponse = await appClient.send.registerApiKey({
+      args: { 
+        walletAddress: 'RZ63HGZIZJ2DFK75NBPVGKZYBADAKDY3WENWKYJY7ISV2VDFQUHWHR7MXE',
+        apiKeyHash: 'ac_live_test_key_hash',
+        tier: 'enterprise'
+      }
+    })
+    console.log(`🔑 API Key registration: ${apiKeyResponse.return}`)
+    
+    // Test API key count
+    const apiKeyCountResponse = await appClient.send.getApiKeyCount({ args: [] })
+    console.log(`📊 Total API keys: ${apiKeyCountResponse.return}`)
+    
+    // Test wallet API key permission
+    const canGenerateResponse = await appClient.send.canGenerateApiKey({
+      args: { 
+        walletAddress: 'RZ63HGZIZJ2DFK75NBPVGKZYBADAKDY3WENWKYJY7ISV2VDFQUHWHR7MXE'
+      }
+    })
+    console.log(`✅ Can generate API key: ${canGenerateResponse.return === 1 ? 'Yes' : 'No'}`)
+    
     // Test platform fees
     const feesResponse = await appClient.send.getPlatformFeesAmount({ args: [] })
     console.log(`💰 Platform fees: ${feesResponse.return} microALGO`)

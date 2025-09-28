@@ -1,6 +1,6 @@
 /**
- * Dashboard Page
- * Portfolio overview and loan management
+ * Security Dashboard Page
+ * Web3 Security Analytics and API Management
  */
 
 'use client'
@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
 import { WalletConnect } from '@/components/WalletConnect'
 import { useWalletStore } from '@/stores/walletStore'
+import { useSecurityStore } from '@/stores/securityStore'
+import SecurityDashboard from '@/components/SecurityDashboard'
 import { 
   ChartBarIcon, 
   CurrencyDollarIcon, 
@@ -47,6 +49,14 @@ interface CreditScoreData {
 
 export default function DashboardPage() {
   const { isConnected, walletAddress } = useWalletStore()
+  const { 
+    apiKey, 
+    securityScore, 
+    threatLevel, 
+    dashboard,
+    loadSecurityDashboard 
+  } = useSecurityStore()
+  
   const [loans, setLoans] = useState<LoanData[]>([])
   const [creditScore, setCreditScore] = useState<CreditScoreData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -182,18 +192,32 @@ export default function DashboardPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-              Dashboard
+              Security Dashboard
             </h1>
             <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-              Manage your loans and track your credit score
+              Web3 Security Analytics and API Management
             </p>
+            {apiKey && (
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  API Key Active: {apiKey.slice(0, 12)}...
+                </span>
+              </div>
+            )}
           </div>
-          <Link href="/apply">
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Apply for New Loan
+          <div className="flex gap-3">
+            <Link href="/apply">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <PlusIcon className="mr-2 h-4 w-4" />
+                Apply for Loan
+              </Button>
+            </Link>
+            <Button variant="outline" onClick={() => loadSecurityDashboard()}>
+              <ArrowPathIcon className="mr-2 h-4 w-4" />
+              Refresh
             </Button>
-          </Link>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -262,6 +286,13 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Security Dashboard Integration */}
+        {apiKey && (
+          <div className="mb-8">
+            <SecurityDashboard apiKey={apiKey} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Credit Score Details */}

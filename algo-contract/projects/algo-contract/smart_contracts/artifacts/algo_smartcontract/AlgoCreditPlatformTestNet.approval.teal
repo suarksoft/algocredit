@@ -4,23 +4,23 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 1000000 50 1000000000 100000
-    bytecblock 0x151f7c75 "totalFundsInvested" "totalFundsDeposited" "platformFees" "contractActive" "totalActiveLoans" "totalInvestors" "totalStartups" "totalTokenizedStartups" "totalLoanRequests" "totalInvestments" "Platform is currently inactive" "Investment amount must be greater than 0" "Funding amount must be greater than 0" "Invalid loan ID" "Insufficient available funds"
+    bytecblock 0x151f7c75 "totalFundsInvested" "totalFundsDeposited" "platformFees" "contractActive" "totalActiveLoans" "totalInvestors" "totalStartups" "totalApiKeys" "totalTokenizedStartups" "totalLoanRequests" "totalInvestments" 0x151f7c750000000000000001 "Platform is currently inactive" "Investment amount must be greater than 0" "Funding amount must be greater than 0" "Invalid loan ID" "Insufficient available funds"
     // smart_contracts/algo_smartcontract/contract.algo.ts:3
     // export class AlgoCreditPlatformTestNet extends Contract {
     txn NumAppArgs
-    bz main_bare_routing@34
-    pushbytess 0x02bece11 0xf43287ab 0x7eac1ca1 0x1f523c74 0xff8437eb 0xf59c7cec 0x7fa0dca0 0xa14ba69d 0x64e2bb78 0xa57c633e 0x9ad40acb 0x9824c702 0x1b294dcc 0x790f3af8 0x45e19fa9 0xcb45a8b7 0x587aa573 0xe476d182 0xee57c82c 0x11237b48 0xbe5e72a0 0xd7a79c2f 0xc5dcad3f 0x8a1dac4b 0x5c8ee5d2 0xee7a7d04 0xf65cc277 0x09c3d5fd 0x8052215e // method "hello(string)string", method "registerInvestor(string,uint64)string", method "registerStartup(string,string,uint64)string", method "tokenizeStartup(string,uint64,uint64,string)string", method "requestLoan(uint64,uint64,uint64)string", method "getInvestorCount()uint64", method "getStartupCount()uint64", method "getTokenizedStartupsCount()uint64", method "getTotalInvestmentsCount()uint64", method "getLoanRequestCount()uint64", method "investInStartup(uint64,uint64,uint64)string", method "realDeposit()string", method "simulateDeposit(uint64)string", method "realWithdraw(uint64)string", method "simulateInvestment(uint64)string", method "getAvailableFunds()uint64", method "getTotalDeposited()uint64", method "getTotalInvested()uint64", method "getPlatformFees()uint64", method "getPlatformStats()string", method "getContractInfo()string", method "realLoanFunding(uint64,uint64)string", method "simulateLoanFunding(uint64,uint64)string", method "isContractActive()uint64", method "getActiveLoansCount()uint64", method "togglePlatformStatus()string", method "collectPlatformFees()string", method "getPlatformFeesAmount()uint64", method "testPlatform()string"
+    bz main_bare_routing@37
+    pushbytess 0x02bece11 0xf43287ab 0x881eb5af 0x9e641817 0x94f0ea89 0x7eac1ca1 0x1f523c74 0xff8437eb 0xf59c7cec 0x7fa0dca0 0xa14ba69d 0x64e2bb78 0xa57c633e 0x9ad40acb 0x9824c702 0x1b294dcc 0x790f3af8 0x45e19fa9 0xcb45a8b7 0x587aa573 0xe476d182 0xee57c82c 0x11237b48 0xbe5e72a0 0xd7a79c2f 0xc5dcad3f 0x8a1dac4b 0x5c8ee5d2 0xee7a7d04 0xf65cc277 0x09c3d5fd 0x8052215e // method "hello(string)string", method "registerInvestor(string,uint64)string", method "registerApiKey(string,string,string)string", method "getApiKeyCount()uint64", method "canGenerateApiKey(string)uint64", method "registerStartup(string,string,uint64)string", method "tokenizeStartup(string,uint64,uint64,string)string", method "requestLoan(uint64,uint64,uint64)string", method "getInvestorCount()uint64", method "getStartupCount()uint64", method "getTokenizedStartupsCount()uint64", method "getTotalInvestmentsCount()uint64", method "getLoanRequestCount()uint64", method "investInStartup(uint64,uint64,uint64)string", method "realDeposit()string", method "simulateDeposit(uint64)string", method "realWithdraw(uint64)string", method "simulateInvestment(uint64)string", method "getAvailableFunds()uint64", method "getTotalDeposited()uint64", method "getTotalInvested()uint64", method "getPlatformFees()uint64", method "getPlatformStats()string", method "getContractInfo()string", method "realLoanFunding(uint64,uint64)string", method "simulateLoanFunding(uint64,uint64)string", method "isContractActive()uint64", method "getActiveLoansCount()uint64", method "togglePlatformStatus()string", method "collectPlatformFees()string", method "getPlatformFeesAmount()uint64", method "testPlatform()string"
     txna ApplicationArgs 0
-    match main_hello_route@3 main_registerInvestor_route@4 main_registerStartup_route@5 main_tokenizeStartup_route@6 main_requestLoan_route@7 main_getInvestorCount_route@8 main_getStartupCount_route@9 main_getTokenizedStartupsCount_route@10 main_getTotalInvestmentsCount_route@11 main_getLoanRequestCount_route@12 main_investInStartup_route@13 main_realDeposit_route@14 main_simulateDeposit_route@15 main_realWithdraw_route@16 main_simulateInvestment_route@17 main_getAvailableFunds_route@18 main_getTotalDeposited_route@19 main_getTotalInvested_route@20 main_getPlatformFees_route@21 main_getPlatformStats_route@22 main_getContractInfo_route@23 main_realLoanFunding_route@24 main_simulateLoanFunding_route@25 main_isContractActive_route@26 main_getActiveLoansCount_route@27 main_togglePlatformStatus_route@28 main_collectPlatformFees_route@29 main_getPlatformFeesAmount_route@30 main_testPlatform_route@31
+    match main_hello_route@3 main_registerInvestor_route@4 main_registerApiKey_route@5 main_getApiKeyCount_route@6 main_canGenerateApiKey_route@7 main_registerStartup_route@8 main_tokenizeStartup_route@9 main_requestLoan_route@10 main_getInvestorCount_route@11 main_getStartupCount_route@12 main_getTokenizedStartupsCount_route@13 main_getTotalInvestmentsCount_route@14 main_getLoanRequestCount_route@15 main_investInStartup_route@16 main_realDeposit_route@17 main_simulateDeposit_route@18 main_realWithdraw_route@19 main_simulateInvestment_route@20 main_getAvailableFunds_route@21 main_getTotalDeposited_route@22 main_getTotalInvested_route@23 main_getPlatformFees_route@24 main_getPlatformStats_route@25 main_getContractInfo_route@26 main_realLoanFunding_route@27 main_simulateLoanFunding_route@28 main_isContractActive_route@29 main_getActiveLoansCount_route@30 main_togglePlatformStatus_route@31 main_collectPlatformFees_route@32 main_getPlatformFeesAmount_route@33 main_testPlatform_route@34
 
-main_after_if_else@38:
+main_after_if_else@41:
     // smart_contracts/algo_smartcontract/contract.algo.ts:3
     // export class AlgoCreditPlatformTestNet extends Contract {
     intc_0 // 0
     return
 
-main_testPlatform_route@31:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:435
+main_testPlatform_route@34:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:464
     // testPlatform(): string {
     txn OnCompletion
     !
@@ -41,8 +41,8 @@ main_testPlatform_route@31:
     intc_1 // 1
     return
 
-main_getPlatformFeesAmount_route@30:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:428
+main_getPlatformFeesAmount_route@33:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:457
     // getPlatformFeesAmount(): uint64 {
     txn OnCompletion
     !
@@ -58,8 +58,8 @@ main_getPlatformFeesAmount_route@30:
     intc_1 // 1
     return
 
-main_collectPlatformFees_route@29:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:409
+main_collectPlatformFees_route@32:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:438
     // collectPlatformFees(): string {
     txn OnCompletion
     !
@@ -80,8 +80,8 @@ main_collectPlatformFees_route@29:
     intc_1 // 1
     return
 
-main_togglePlatformStatus_route@28:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:396
+main_togglePlatformStatus_route@31:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:425
     // togglePlatformStatus(): string {
     txn OnCompletion
     !
@@ -102,8 +102,8 @@ main_togglePlatformStatus_route@28:
     intc_1 // 1
     return
 
-main_getActiveLoansCount_route@27:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:389
+main_getActiveLoansCount_route@30:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:418
     // getActiveLoansCount(): uint64 {
     txn OnCompletion
     !
@@ -119,21 +119,21 @@ main_getActiveLoansCount_route@27:
     intc_1 // 1
     return
 
-main_isContractActive_route@26:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:380
+main_isContractActive_route@29:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:409
     // isContractActive(): uint64 {
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    pushbytes 0x151f7c750000000000000001
+    bytec 12 // 0x151f7c750000000000000001
     log
     intc_1 // 1
     return
 
-main_simulateLoanFunding_route@25:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:352
+main_simulateLoanFunding_route@28:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:381
     // simulateLoanFunding(loanId: uint64, amount: uint64): string {
     txn OnCompletion
     !
@@ -146,7 +146,7 @@ main_simulateLoanFunding_route@25:
     btoi
     txna ApplicationArgs 2
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:352
+    // smart_contracts/algo_smartcontract/contract.algo.ts:381
     // simulateLoanFunding(loanId: uint64, amount: uint64): string {
     callsub simulateLoanFunding
     dup
@@ -162,8 +162,8 @@ main_simulateLoanFunding_route@25:
     intc_1 // 1
     return
 
-main_realLoanFunding_route@24:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:321
+main_realLoanFunding_route@27:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:350
     // realLoanFunding(loanId: uint64, amount: uint64): string {
     txn OnCompletion
     !
@@ -176,7 +176,7 @@ main_realLoanFunding_route@24:
     btoi
     txna ApplicationArgs 2
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:321
+    // smart_contracts/algo_smartcontract/contract.algo.ts:350
     // realLoanFunding(loanId: uint64, amount: uint64): string {
     callsub realLoanFunding
     dup
@@ -192,8 +192,8 @@ main_realLoanFunding_route@24:
     intc_1 // 1
     return
 
-main_getContractInfo_route@23:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:314
+main_getContractInfo_route@26:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:343
     // getContractInfo(): string {
     txn OnCompletion
     !
@@ -205,8 +205,8 @@ main_getContractInfo_route@23:
     intc_1 // 1
     return
 
-main_getPlatformStats_route@22:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:300
+main_getPlatformStats_route@25:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:329
     // getPlatformStats(): string {
     txn OnCompletion
     !
@@ -227,8 +227,8 @@ main_getPlatformStats_route@22:
     intc_1 // 1
     return
 
-main_getPlatformFees_route@21:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:293
+main_getPlatformFees_route@24:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:322
     // getPlatformFees(): uint64 {
     txn OnCompletion
     !
@@ -244,8 +244,8 @@ main_getPlatformFees_route@21:
     intc_1 // 1
     return
 
-main_getTotalInvested_route@20:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:286
+main_getTotalInvested_route@23:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:315
     // getTotalInvested(): uint64 {
     txn OnCompletion
     !
@@ -261,8 +261,8 @@ main_getTotalInvested_route@20:
     intc_1 // 1
     return
 
-main_getTotalDeposited_route@19:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:279
+main_getTotalDeposited_route@22:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:308
     // getTotalDeposited(): uint64 {
     txn OnCompletion
     !
@@ -278,8 +278,8 @@ main_getTotalDeposited_route@19:
     intc_1 // 1
     return
 
-main_getAvailableFunds_route@18:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:272
+main_getAvailableFunds_route@21:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:301
     // getAvailableFunds(): uint64 {
     txn OnCompletion
     !
@@ -295,8 +295,8 @@ main_getAvailableFunds_route@18:
     intc_1 // 1
     return
 
-main_simulateInvestment_route@17:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:252
+main_simulateInvestment_route@20:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:281
     // simulateInvestment(amount: uint64): string {
     txn OnCompletion
     !
@@ -307,7 +307,7 @@ main_simulateInvestment_route@17:
     // export class AlgoCreditPlatformTestNet extends Contract {
     txna ApplicationArgs 1
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:252
+    // smart_contracts/algo_smartcontract/contract.algo.ts:281
     // simulateInvestment(amount: uint64): string {
     callsub simulateInvestment
     dup
@@ -323,8 +323,8 @@ main_simulateInvestment_route@17:
     intc_1 // 1
     return
 
-main_realWithdraw_route@16:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:224
+main_realWithdraw_route@19:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:253
     // realWithdraw(amount: uint64): string {
     txn OnCompletion
     !
@@ -335,7 +335,7 @@ main_realWithdraw_route@16:
     // export class AlgoCreditPlatformTestNet extends Contract {
     txna ApplicationArgs 1
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:224
+    // smart_contracts/algo_smartcontract/contract.algo.ts:253
     // realWithdraw(amount: uint64): string {
     callsub realWithdraw
     dup
@@ -351,8 +351,8 @@ main_realWithdraw_route@16:
     intc_1 // 1
     return
 
-main_simulateDeposit_route@15:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:204
+main_simulateDeposit_route@18:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:233
     // simulateDeposit(amount: uint64): string {
     txn OnCompletion
     !
@@ -363,7 +363,7 @@ main_simulateDeposit_route@15:
     // export class AlgoCreditPlatformTestNet extends Contract {
     txna ApplicationArgs 1
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:204
+    // smart_contracts/algo_smartcontract/contract.algo.ts:233
     // simulateDeposit(amount: uint64): string {
     callsub simulateDeposit
     dup
@@ -379,8 +379,8 @@ main_simulateDeposit_route@15:
     intc_1 // 1
     return
 
-main_realDeposit_route@14:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:188
+main_realDeposit_route@17:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:217
     // realDeposit(): string {
     txn OnCompletion
     !
@@ -401,8 +401,8 @@ main_realDeposit_route@14:
     intc_1 // 1
     return
 
-main_investInStartup_route@13:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:155
+main_investInStartup_route@16:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:184
     // investInStartup(startupId: uint64, investmentAmount: uint64, tokenAmount: uint64): string {
     txn OnCompletion
     !
@@ -417,7 +417,7 @@ main_investInStartup_route@13:
     btoi
     txna ApplicationArgs 3
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:155
+    // smart_contracts/algo_smartcontract/contract.algo.ts:184
     // investInStartup(startupId: uint64, investmentAmount: uint64, tokenAmount: uint64): string {
     callsub investInStartup
     dup
@@ -433,8 +433,8 @@ main_investInStartup_route@13:
     intc_1 // 1
     return
 
-main_getLoanRequestCount_route@12:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:147
+main_getLoanRequestCount_route@15:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:176
     // getLoanRequestCount(): uint64 {
     txn OnCompletion
     !
@@ -450,8 +450,8 @@ main_getLoanRequestCount_route@12:
     intc_1 // 1
     return
 
-main_getTotalInvestmentsCount_route@11:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:139
+main_getTotalInvestmentsCount_route@14:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:168
     // getTotalInvestmentsCount(): uint64 {
     txn OnCompletion
     !
@@ -467,8 +467,8 @@ main_getTotalInvestmentsCount_route@11:
     intc_1 // 1
     return
 
-main_getTokenizedStartupsCount_route@10:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:131
+main_getTokenizedStartupsCount_route@13:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:160
     // getTokenizedStartupsCount(): uint64 {
     txn OnCompletion
     !
@@ -484,8 +484,8 @@ main_getTokenizedStartupsCount_route@10:
     intc_1 // 1
     return
 
-main_getStartupCount_route@9:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:123
+main_getStartupCount_route@12:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:152
     // getStartupCount(): uint64 {
     txn OnCompletion
     !
@@ -501,8 +501,8 @@ main_getStartupCount_route@9:
     intc_1 // 1
     return
 
-main_getInvestorCount_route@8:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:115
+main_getInvestorCount_route@11:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:144
     // getInvestorCount(): uint64 {
     txn OnCompletion
     !
@@ -518,8 +518,8 @@ main_getInvestorCount_route@8:
     intc_1 // 1
     return
 
-main_requestLoan_route@7:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:81
+main_requestLoan_route@10:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:110
     // requestLoan(amount: uint64, duration: uint64, interestRate: uint64): string {
     txn OnCompletion
     !
@@ -534,7 +534,7 @@ main_requestLoan_route@7:
     btoi
     txna ApplicationArgs 3
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:81
+    // smart_contracts/algo_smartcontract/contract.algo.ts:110
     // requestLoan(amount: uint64, duration: uint64, interestRate: uint64): string {
     callsub requestLoan
     dup
@@ -550,8 +550,8 @@ main_requestLoan_route@7:
     intc_1 // 1
     return
 
-main_tokenizeStartup_route@6:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:62
+main_tokenizeStartup_route@9:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:91
     // tokenizeStartup(startupName: string, tokenPrice: uint64, totalSupply: uint64, industry: string): string {
     txn OnCompletion
     !
@@ -568,7 +568,7 @@ main_tokenizeStartup_route@6:
     btoi
     txna ApplicationArgs 4
     extract 2 0
-    // smart_contracts/algo_smartcontract/contract.algo.ts:62
+    // smart_contracts/algo_smartcontract/contract.algo.ts:91
     // tokenizeStartup(startupName: string, tokenPrice: uint64, totalSupply: uint64, industry: string): string {
     callsub tokenizeStartup
     dup
@@ -584,8 +584,8 @@ main_tokenizeStartup_route@6:
     intc_1 // 1
     return
 
-main_registerStartup_route@5:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:42
+main_registerStartup_route@8:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:71
     // registerStartup(startupName: string, industry: string, requestedAmount: uint64): string {
     txn OnCompletion
     !
@@ -600,7 +600,7 @@ main_registerStartup_route@5:
     extract 2 0
     txna ApplicationArgs 3
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:42
+    // smart_contracts/algo_smartcontract/contract.algo.ts:71
     // registerStartup(startupName: string, industry: string, requestedAmount: uint64): string {
     callsub registerStartup
     dup
@@ -616,8 +616,70 @@ main_registerStartup_route@5:
     intc_1 // 1
     return
 
+main_canGenerateApiKey_route@7:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:64
+    // canGenerateApiKey(walletAddress: string): uint64 {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec 12 // 0x151f7c750000000000000001
+    log
+    intc_1 // 1
+    return
+
+main_getApiKeyCount_route@6:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:57
+    // getApiKeyCount(): uint64 {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub getApiKeyCount
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_registerApiKey_route@5:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:46
+    // registerApiKey(walletAddress: string, apiKeyHash: string, tier: string): string {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/algo_smartcontract/contract.algo.ts:3
+    // export class AlgoCreditPlatformTestNet extends Contract {
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    // smart_contracts/algo_smartcontract/contract.algo.ts:46
+    // registerApiKey(walletAddress: string, apiKeyHash: string, tier: string): string {
+    callsub registerApiKey
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
 main_registerInvestor_route@4:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:27
+    // smart_contracts/algo_smartcontract/contract.algo.ts:31
     // registerInvestor(investorType: string, riskLevel: uint64): string {
     txn OnCompletion
     !
@@ -630,7 +692,7 @@ main_registerInvestor_route@4:
     extract 2 0
     txna ApplicationArgs 2
     btoi
-    // smart_contracts/algo_smartcontract/contract.algo.ts:27
+    // smart_contracts/algo_smartcontract/contract.algo.ts:31
     // registerInvestor(investorType: string, riskLevel: uint64): string {
     callsub registerInvestor
     dup
@@ -647,7 +709,7 @@ main_registerInvestor_route@4:
     return
 
 main_hello_route@3:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:19
+    // smart_contracts/algo_smartcontract/contract.algo.ts:23
     // hello(name: string): string {
     txn OnCompletion
     !
@@ -658,7 +720,7 @@ main_hello_route@3:
     // export class AlgoCreditPlatformTestNet extends Contract {
     txna ApplicationArgs 1
     extract 2 0
-    // smart_contracts/algo_smartcontract/contract.algo.ts:19
+    // smart_contracts/algo_smartcontract/contract.algo.ts:23
     // hello(name: string): string {
     callsub hello
     dup
@@ -674,11 +736,11 @@ main_hello_route@3:
     intc_1 // 1
     return
 
-main_bare_routing@34:
+main_bare_routing@37:
     // smart_contracts/algo_smartcontract/contract.algo.ts:3
     // export class AlgoCreditPlatformTestNet extends Contract {
     txn OnCompletion
-    bnz main_after_if_else@38
+    bnz main_after_if_else@41
     txn ApplicationID
     !
     assert // can only call when creating
@@ -688,10 +750,10 @@ main_bare_routing@34:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.hello(name: bytes) -> bytes:
 hello:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:19
+    // smart_contracts/algo_smartcontract/contract.algo.ts:23
     // hello(name: string): string {
     proto 1 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:20
+    // smart_contracts/algo_smartcontract/contract.algo.ts:24
     // return `Hello, ${name}`
     pushbytes "Hello, "
     frame_dig -1
@@ -701,10 +763,10 @@ hello:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.registerInvestor(investorType: bytes, riskLevel: uint64) -> bytes:
 registerInvestor:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:27
+    // smart_contracts/algo_smartcontract/contract.algo.ts:31
     // registerInvestor(investorType: string, riskLevel: uint64): string {
     proto 2 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:29
+    // smart_contracts/algo_smartcontract/contract.algo.ts:33
     // if (riskLevel < 1 || riskLevel > 10) {
     frame_dig -1
     intc_1 // 1
@@ -716,7 +778,7 @@ registerInvestor:
     bz registerInvestor_after_if_else@3
 
 registerInvestor_if_body@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:30
+    // smart_contracts/algo_smartcontract/contract.algo.ts:34
     // return 'Risk level must be between 1 and 10'
     pushbytes "Risk level must be between 1 and 10"
     retsub
@@ -728,47 +790,94 @@ registerInvestor_after_if_else@3:
     bytec 6 // "totalInvestors"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:34
+    // smart_contracts/algo_smartcontract/contract.algo.ts:38
     // this.totalInvestors.value = this.totalInvestors.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:5
     // totalInvestors = GlobalState<uint64>()
     bytec 6 // "totalInvestors"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:34
+    // smart_contracts/algo_smartcontract/contract.algo.ts:38
     // this.totalInvestors.value = this.totalInvestors.value + 1
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:36
+    // smart_contracts/algo_smartcontract/contract.algo.ts:40
     // return 'Investor registered successfully'
     pushbytes "Investor registered successfully"
     retsub
 
 
+// smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.registerApiKey(walletAddress: bytes, apiKeyHash: bytes, tier: bytes) -> bytes:
+registerApiKey:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:46
+    // registerApiKey(walletAddress: string, apiKeyHash: string, tier: string): string {
+    proto 3 1
+    // smart_contracts/algo_smartcontract/contract.algo.ts:15
+    // totalApiKeys = GlobalState<uint64>() // Total API keys generated
+    intc_0 // 0
+    bytec 8 // "totalApiKeys"
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/algo_smartcontract/contract.algo.ts:48
+    // this.totalApiKeys.value = this.totalApiKeys.value + 1
+    intc_1 // 1
+    +
+    // smart_contracts/algo_smartcontract/contract.algo.ts:15
+    // totalApiKeys = GlobalState<uint64>() // Total API keys generated
+    bytec 8 // "totalApiKeys"
+    // smart_contracts/algo_smartcontract/contract.algo.ts:48
+    // this.totalApiKeys.value = this.totalApiKeys.value + 1
+    swap
+    app_global_put
+    // smart_contracts/algo_smartcontract/contract.algo.ts:51
+    // return 'API key registered for wallet: ' + walletAddress + ' tier: ' + tier
+    pushbytes "API key registered for wallet: "
+    frame_dig -3
+    concat
+    pushbytes " tier: "
+    concat
+    frame_dig -1
+    concat
+    retsub
+
+
+// smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.getApiKeyCount() -> uint64:
+getApiKeyCount:
+    // smart_contracts/algo_smartcontract/contract.algo.ts:15
+    // totalApiKeys = GlobalState<uint64>() // Total API keys generated
+    intc_0 // 0
+    bytec 8 // "totalApiKeys"
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/algo_smartcontract/contract.algo.ts:58
+    // return this.totalApiKeys.value
+    retsub
+
+
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.registerStartup(startupName: bytes, industry: bytes, requestedAmount: uint64) -> bytes:
 registerStartup:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:42
+    // smart_contracts/algo_smartcontract/contract.algo.ts:71
     // registerStartup(startupName: string, industry: string, requestedAmount: uint64): string {
     proto 3 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:44
+    // smart_contracts/algo_smartcontract/contract.algo.ts:73
     // if (requestedAmount < 1000000) {
     frame_dig -1
     intc_2 // 1000000
     <
     bz registerStartup_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:45
+    // smart_contracts/algo_smartcontract/contract.algo.ts:74
     // return 'Minimum loan request is 1 ALGO'
     pushbytes "Minimum loan request is 1 ALGO"
     retsub
 
 registerStartup_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:49
+    // smart_contracts/algo_smartcontract/contract.algo.ts:78
     // if (requestedAmount > 1000000000) {
     frame_dig -1
     intc 4 // 1000000000
     >
     bz registerStartup_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:50
+    // smart_contracts/algo_smartcontract/contract.algo.ts:79
     // return 'Maximum loan request is 1000 ALGO'
     pushbytes "Maximum loan request is 1000 ALGO"
     retsub
@@ -780,18 +889,18 @@ registerStartup_after_if_else@4:
     bytec 7 // "totalStartups"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:54
+    // smart_contracts/algo_smartcontract/contract.algo.ts:83
     // this.totalStartups.value = this.totalStartups.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:6
     // totalStartups = GlobalState<uint64>()
     bytec 7 // "totalStartups"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:54
+    // smart_contracts/algo_smartcontract/contract.algo.ts:83
     // this.totalStartups.value = this.totalStartups.value + 1
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:56
+    // smart_contracts/algo_smartcontract/contract.algo.ts:85
     // return 'Startup registered successfully: ' + startupName + ' in ' + industry
     pushbytes "Startup registered successfully: "
     frame_dig -3
@@ -805,28 +914,28 @@ registerStartup_after_if_else@4:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.tokenizeStartup(startupName: bytes, tokenPrice: uint64, totalSupply: uint64, industry: bytes) -> bytes:
 tokenizeStartup:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:62
+    // smart_contracts/algo_smartcontract/contract.algo.ts:91
     // tokenizeStartup(startupName: string, tokenPrice: uint64, totalSupply: uint64, industry: string): string {
     proto 4 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:64
+    // smart_contracts/algo_smartcontract/contract.algo.ts:93
     // if (tokenPrice <= 0) {
     frame_dig -3
     intc_0 // 0
     <=
     bz tokenizeStartup_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:65
+    // smart_contracts/algo_smartcontract/contract.algo.ts:94
     // return 'Token price must be greater than 0'
     pushbytes "Token price must be greater than 0"
     retsub
 
 tokenizeStartup_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:68
+    // smart_contracts/algo_smartcontract/contract.algo.ts:97
     // if (totalSupply <= 0) {
     frame_dig -2
     intc_0 // 0
     <=
     bz tokenizeStartup_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:69
+    // smart_contracts/algo_smartcontract/contract.algo.ts:98
     // return 'Total supply must be greater than 0'
     pushbytes "Total supply must be greater than 0"
     retsub
@@ -835,21 +944,21 @@ tokenizeStartup_after_if_else@4:
     // smart_contracts/algo_smartcontract/contract.algo.ts:7
     // totalTokenizedStartups = GlobalState<uint64>()
     intc_0 // 0
-    bytec 8 // "totalTokenizedStartups"
+    bytec 9 // "totalTokenizedStartups"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:73
+    // smart_contracts/algo_smartcontract/contract.algo.ts:102
     // this.totalTokenizedStartups.value = this.totalTokenizedStartups.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:7
     // totalTokenizedStartups = GlobalState<uint64>()
-    bytec 8 // "totalTokenizedStartups"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:73
+    bytec 9 // "totalTokenizedStartups"
+    // smart_contracts/algo_smartcontract/contract.algo.ts:102
     // this.totalTokenizedStartups.value = this.totalTokenizedStartups.value + 1
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:75
+    // smart_contracts/algo_smartcontract/contract.algo.ts:104
     // return 'Startup tokenized successfully: ' + startupName
     pushbytes "Startup tokenized successfully: "
     frame_dig -4
@@ -859,7 +968,7 @@ tokenizeStartup_after_if_else@4:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.requestLoan(amount: uint64, duration: uint64, interestRate: uint64) -> bytes:
 requestLoan:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:81
+    // smart_contracts/algo_smartcontract/contract.algo.ts:110
     // requestLoan(amount: uint64, duration: uint64, interestRate: uint64): string {
     proto 3 1
     // smart_contracts/algo_smartcontract/contract.algo.ts:14
@@ -868,40 +977,40 @@ requestLoan:
     bytec 4 // "contractActive"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:83
+    // smart_contracts/algo_smartcontract/contract.algo.ts:112
     // if (this.contractActive.value === 0) {
     bnz requestLoan_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:84
+    // smart_contracts/algo_smartcontract/contract.algo.ts:113
     // return 'Platform is currently inactive'
-    bytec 11 // "Platform is currently inactive"
+    bytec 13 // "Platform is currently inactive"
     retsub
 
 requestLoan_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:88
+    // smart_contracts/algo_smartcontract/contract.algo.ts:117
     // if (amount < 1000000) {
     frame_dig -3
     intc_2 // 1000000
     <
     bz requestLoan_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:89
+    // smart_contracts/algo_smartcontract/contract.algo.ts:118
     // return 'Minimum loan amount is 1 ALGO'
     pushbytes "Minimum loan amount is 1 ALGO"
     retsub
 
 requestLoan_after_if_else@4:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:92
+    // smart_contracts/algo_smartcontract/contract.algo.ts:121
     // if (amount > 1000000000) {
     frame_dig -3
     intc 4 // 1000000000
     >
     bz requestLoan_after_if_else@6
-    // smart_contracts/algo_smartcontract/contract.algo.ts:93
+    // smart_contracts/algo_smartcontract/contract.algo.ts:122
     // return 'Maximum loan amount is 1000 ALGO'
     pushbytes "Maximum loan amount is 1000 ALGO"
     retsub
 
 requestLoan_after_if_else@6:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:97
+    // smart_contracts/algo_smartcontract/contract.algo.ts:126
     // if (duration < 1 || duration > 60) {
     frame_dig -2
     intc_1 // 1
@@ -913,13 +1022,13 @@ requestLoan_after_if_else@6:
     bz requestLoan_after_if_else@9
 
 requestLoan_if_body@8:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:98
+    // smart_contracts/algo_smartcontract/contract.algo.ts:127
     // return 'Loan duration must be between 1-60 months'
     pushbytes "Loan duration must be between 1-60 months"
     retsub
 
 requestLoan_after_if_else@9:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:102
+    // smart_contracts/algo_smartcontract/contract.algo.ts:131
     // if (interestRate < 1 || interestRate > 30) {
     frame_dig -1
     intc_1 // 1
@@ -931,7 +1040,7 @@ requestLoan_after_if_else@9:
     bz requestLoan_after_if_else@12
 
 requestLoan_if_body@11:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:103
+    // smart_contracts/algo_smartcontract/contract.algo.ts:132
     // return 'Interest rate must be between 1-30%'
     pushbytes "Interest rate must be between 1-30%"
     retsub
@@ -940,21 +1049,21 @@ requestLoan_after_if_else@12:
     // smart_contracts/algo_smartcontract/contract.algo.ts:10
     // totalLoanRequests = GlobalState<uint64>()
     intc_0 // 0
-    bytec 9 // "totalLoanRequests"
+    bytec 10 // "totalLoanRequests"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:107
+    // smart_contracts/algo_smartcontract/contract.algo.ts:136
     // this.totalLoanRequests.value = this.totalLoanRequests.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:10
     // totalLoanRequests = GlobalState<uint64>()
-    bytec 9 // "totalLoanRequests"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:107
+    bytec 10 // "totalLoanRequests"
+    // smart_contracts/algo_smartcontract/contract.algo.ts:136
     // this.totalLoanRequests.value = this.totalLoanRequests.value + 1
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:109
+    // smart_contracts/algo_smartcontract/contract.algo.ts:138
     // return 'Loan request created successfully'
     pushbytes "Loan request created successfully"
     retsub
@@ -968,7 +1077,7 @@ getInvestorCount:
     bytec 6 // "totalInvestors"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:117
+    // smart_contracts/algo_smartcontract/contract.algo.ts:146
     // return this.totalInvestors.value
     retsub
 
@@ -981,7 +1090,7 @@ getStartupCount:
     bytec 7 // "totalStartups"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:125
+    // smart_contracts/algo_smartcontract/contract.algo.ts:154
     // return this.totalStartups.value
     retsub
 
@@ -991,10 +1100,10 @@ getTokenizedStartupsCount:
     // smart_contracts/algo_smartcontract/contract.algo.ts:7
     // totalTokenizedStartups = GlobalState<uint64>()
     intc_0 // 0
-    bytec 8 // "totalTokenizedStartups"
+    bytec 9 // "totalTokenizedStartups"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:133
+    // smart_contracts/algo_smartcontract/contract.algo.ts:162
     // return this.totalTokenizedStartups.value
     retsub
 
@@ -1004,10 +1113,10 @@ getTotalInvestmentsCount:
     // smart_contracts/algo_smartcontract/contract.algo.ts:12
     // totalInvestments = GlobalState<uint64>()
     intc_0 // 0
-    bytec 10 // "totalInvestments"
+    bytec 11 // "totalInvestments"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:141
+    // smart_contracts/algo_smartcontract/contract.algo.ts:170
     // return this.totalInvestments.value
     retsub
 
@@ -1017,50 +1126,50 @@ getLoanRequestCount:
     // smart_contracts/algo_smartcontract/contract.algo.ts:10
     // totalLoanRequests = GlobalState<uint64>()
     intc_0 // 0
-    bytec 9 // "totalLoanRequests"
+    bytec 10 // "totalLoanRequests"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:149
+    // smart_contracts/algo_smartcontract/contract.algo.ts:178
     // return this.totalLoanRequests.value
     retsub
 
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.investInStartup(startupId: uint64, investmentAmount: uint64, tokenAmount: uint64) -> bytes:
 investInStartup:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:155
+    // smart_contracts/algo_smartcontract/contract.algo.ts:184
     // investInStartup(startupId: uint64, investmentAmount: uint64, tokenAmount: uint64): string {
     proto 3 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:157
+    // smart_contracts/algo_smartcontract/contract.algo.ts:186
     // if (investmentAmount <= 0) {
     frame_dig -2
     intc_0 // 0
     <=
     bz investInStartup_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:158
+    // smart_contracts/algo_smartcontract/contract.algo.ts:187
     // return 'Investment amount must be greater than 0'
-    bytec 12 // "Investment amount must be greater than 0"
+    bytec 14 // "Investment amount must be greater than 0"
     retsub
 
 investInStartup_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:161
+    // smart_contracts/algo_smartcontract/contract.algo.ts:190
     // if (tokenAmount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz investInStartup_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:162
+    // smart_contracts/algo_smartcontract/contract.algo.ts:191
     // return 'Token amount must be greater than 0'
     pushbytes "Token amount must be greater than 0"
     retsub
 
 investInStartup_after_if_else@4:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:165
+    // smart_contracts/algo_smartcontract/contract.algo.ts:194
     // if (startupId <= 0) {
     frame_dig -3
     intc_0 // 0
     <=
     bz investInStartup_after_if_else@6
-    // smart_contracts/algo_smartcontract/contract.algo.ts:166
+    // smart_contracts/algo_smartcontract/contract.algo.ts:195
     // return 'Invalid startup ID'
     pushbytes "Invalid startup ID"
     retsub
@@ -1072,29 +1181,29 @@ investInStartup_after_if_else@6:
     bytec 4 // "contractActive"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:170
+    // smart_contracts/algo_smartcontract/contract.algo.ts:199
     // if (this.contractActive.value === 0) {
     bnz investInStartup_after_if_else@8
-    // smart_contracts/algo_smartcontract/contract.algo.ts:171
+    // smart_contracts/algo_smartcontract/contract.algo.ts:200
     // return 'Platform is currently inactive'
-    bytec 11 // "Platform is currently inactive"
+    bytec 13 // "Platform is currently inactive"
     retsub
 
 investInStartup_after_if_else@8:
     // smart_contracts/algo_smartcontract/contract.algo.ts:12
     // totalInvestments = GlobalState<uint64>()
     intc_0 // 0
-    bytec 10 // "totalInvestments"
+    bytec 11 // "totalInvestments"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:175
+    // smart_contracts/algo_smartcontract/contract.algo.ts:204
     // this.totalInvestments.value = this.totalInvestments.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:12
     // totalInvestments = GlobalState<uint64>()
-    bytec 10 // "totalInvestments"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:175
+    bytec 11 // "totalInvestments"
+    // smart_contracts/algo_smartcontract/contract.algo.ts:204
     // this.totalInvestments.value = this.totalInvestments.value + 1
     swap
     app_global_put
@@ -1104,14 +1213,14 @@ investInStartup_after_if_else@8:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:176
+    // smart_contracts/algo_smartcontract/contract.algo.ts:205
     // this.totalFundsInvested.value = this.totalFundsInvested.value + investmentAmount
     frame_dig -2
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:9
     // totalFundsInvested = GlobalState<uint64>()
     bytec_1 // "totalFundsInvested"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:176
+    // smart_contracts/algo_smartcontract/contract.algo.ts:205
     // this.totalFundsInvested.value = this.totalFundsInvested.value + investmentAmount
     swap
     app_global_put
@@ -1121,7 +1230,7 @@ investInStartup_after_if_else@8:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:179
+    // smart_contracts/algo_smartcontract/contract.algo.ts:208
     // this.platformFees.value = this.platformFees.value + (investmentAmount / 50)
     frame_dig -2
     intc_3 // 50
@@ -1130,11 +1239,11 @@ investInStartup_after_if_else@8:
     // smart_contracts/algo_smartcontract/contract.algo.ts:13
     // platformFees = GlobalState<uint64>()
     bytec_3 // "platformFees"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:179
+    // smart_contracts/algo_smartcontract/contract.algo.ts:208
     // this.platformFees.value = this.platformFees.value + (investmentAmount / 50)
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:181
+    // smart_contracts/algo_smartcontract/contract.algo.ts:210
     // return 'Investment successful in startup'
     pushbytes "Investment successful in startup"
     retsub
@@ -1148,18 +1257,18 @@ realDeposit:
     bytec_2 // "totalFundsDeposited"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:196
+    // smart_contracts/algo_smartcontract/contract.algo.ts:225
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value + 1000000
     intc_2 // 1000000
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:8
     // totalFundsDeposited = GlobalState<uint64>()
     bytec_2 // "totalFundsDeposited"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:196
+    // smart_contracts/algo_smartcontract/contract.algo.ts:225
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value + 1000000
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:198
+    // smart_contracts/algo_smartcontract/contract.algo.ts:227
     // return 'Real deposit processed: 1 ALGO'
     pushbytes "Real deposit processed: 1 ALGO"
     retsub
@@ -1167,28 +1276,28 @@ realDeposit:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.simulateDeposit(amount: uint64) -> bytes:
 simulateDeposit:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:204
+    // smart_contracts/algo_smartcontract/contract.algo.ts:233
     // simulateDeposit(amount: uint64): string {
     proto 1 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:206
+    // smart_contracts/algo_smartcontract/contract.algo.ts:235
     // if (amount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz simulateDeposit_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:207
+    // smart_contracts/algo_smartcontract/contract.algo.ts:236
     // return 'Amount must be greater than 0'
     pushbytes "Amount must be greater than 0"
     retsub
 
 simulateDeposit_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:211
+    // smart_contracts/algo_smartcontract/contract.algo.ts:240
     // if (amount < 100000) {
     frame_dig -1
     intc 5 // 100000
     <
     bz simulateDeposit_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:212
+    // smart_contracts/algo_smartcontract/contract.algo.ts:241
     // return 'Minimum deposit is 0.1 ALGO'
     pushbytes "Minimum deposit is 0.1 ALGO"
     retsub
@@ -1200,18 +1309,18 @@ simulateDeposit_after_if_else@4:
     bytec_2 // "totalFundsDeposited"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:216
+    // smart_contracts/algo_smartcontract/contract.algo.ts:245
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value + amount
     frame_dig -1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:8
     // totalFundsDeposited = GlobalState<uint64>()
     bytec_2 // "totalFundsDeposited"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:216
+    // smart_contracts/algo_smartcontract/contract.algo.ts:245
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value + amount
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:218
+    // smart_contracts/algo_smartcontract/contract.algo.ts:247
     // return 'Deposit simulated successfully'
     pushbytes "Deposit simulated successfully"
     retsub
@@ -1219,16 +1328,16 @@ simulateDeposit_after_if_else@4:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.realWithdraw(amount: uint64) -> bytes:
 realWithdraw:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:224
+    // smart_contracts/algo_smartcontract/contract.algo.ts:253
     // realWithdraw(amount: uint64): string {
     proto 1 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:226
+    // smart_contracts/algo_smartcontract/contract.algo.ts:255
     // if (amount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz realWithdraw_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:227
+    // smart_contracts/algo_smartcontract/contract.algo.ts:256
     // return 'Withdrawal amount must be greater than 0'
     pushbytes "Withdrawal amount must be greater than 0"
     retsub
@@ -1246,25 +1355,25 @@ realWithdraw_after_if_else@2:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:231
+    // smart_contracts/algo_smartcontract/contract.algo.ts:260
     // if (amount > this.totalFundsDeposited.value - this.totalFundsInvested.value) {
     -
     frame_dig -1
     <
     bz realWithdraw_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:232
+    // smart_contracts/algo_smartcontract/contract.algo.ts:261
     // return 'Insufficient contract funds for withdrawal'
     pushbytes "Insufficient contract funds for withdrawal"
     retsub
 
 realWithdraw_after_if_else@4:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:236
+    // smart_contracts/algo_smartcontract/contract.algo.ts:265
     // if (amount < 100000) {
     frame_dig -1
     intc 5 // 100000
     <
     bz realWithdraw_after_if_else@6
-    // smart_contracts/algo_smartcontract/contract.algo.ts:237
+    // smart_contracts/algo_smartcontract/contract.algo.ts:266
     // return 'Minimum withdrawal is 0.1 ALGO'
     pushbytes "Minimum withdrawal is 0.1 ALGO"
     retsub
@@ -1276,18 +1385,18 @@ realWithdraw_after_if_else@6:
     bytec_2 // "totalFundsDeposited"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:241
+    // smart_contracts/algo_smartcontract/contract.algo.ts:270
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value - amount
     frame_dig -1
     -
     // smart_contracts/algo_smartcontract/contract.algo.ts:8
     // totalFundsDeposited = GlobalState<uint64>()
     bytec_2 // "totalFundsDeposited"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:241
+    // smart_contracts/algo_smartcontract/contract.algo.ts:270
     // this.totalFundsDeposited.value = this.totalFundsDeposited.value - amount
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:246
+    // smart_contracts/algo_smartcontract/contract.algo.ts:275
     // return 'Real withdrawal processed successfully'
     pushbytes "Real withdrawal processed successfully"
     retsub
@@ -1295,18 +1404,18 @@ realWithdraw_after_if_else@6:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.simulateInvestment(amount: uint64) -> bytes:
 simulateInvestment:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:252
+    // smart_contracts/algo_smartcontract/contract.algo.ts:281
     // simulateInvestment(amount: uint64): string {
     proto 1 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:254
+    // smart_contracts/algo_smartcontract/contract.algo.ts:283
     // if (amount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz simulateInvestment_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:255
+    // smart_contracts/algo_smartcontract/contract.algo.ts:284
     // return 'Investment amount must be greater than 0'
-    bytec 12 // "Investment amount must be greater than 0"
+    bytec 14 // "Investment amount must be greater than 0"
     retsub
 
 simulateInvestment_after_if_else@2:
@@ -1322,13 +1431,13 @@ simulateInvestment_after_if_else@2:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:259
+    // smart_contracts/algo_smartcontract/contract.algo.ts:288
     // if (amount > this.totalFundsDeposited.value - this.totalFundsInvested.value) {
     -
     frame_dig -1
     <
     bz simulateInvestment_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:260
+    // smart_contracts/algo_smartcontract/contract.algo.ts:289
     // return 'Insufficient available funds for investment'
     pushbytes "Insufficient available funds for investment"
     retsub
@@ -1340,18 +1449,18 @@ simulateInvestment_after_if_else@4:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:264
+    // smart_contracts/algo_smartcontract/contract.algo.ts:293
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     frame_dig -1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:9
     // totalFundsInvested = GlobalState<uint64>()
     bytec_1 // "totalFundsInvested"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:264
+    // smart_contracts/algo_smartcontract/contract.algo.ts:293
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:266
+    // smart_contracts/algo_smartcontract/contract.algo.ts:295
     // return 'Investment allocated successfully'
     pushbytes "Investment allocated successfully"
     retsub
@@ -1371,7 +1480,7 @@ getAvailableFunds:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:273
+    // smart_contracts/algo_smartcontract/contract.algo.ts:302
     // return this.totalFundsDeposited.value - this.totalFundsInvested.value
     -
     retsub
@@ -1385,7 +1494,7 @@ getTotalDeposited:
     bytec_2 // "totalFundsDeposited"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:280
+    // smart_contracts/algo_smartcontract/contract.algo.ts:309
     // return this.totalFundsDeposited.value
     retsub
 
@@ -1398,7 +1507,7 @@ getTotalInvested:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:287
+    // smart_contracts/algo_smartcontract/contract.algo.ts:316
     // return this.totalFundsInvested.value
     retsub
 
@@ -1411,14 +1520,14 @@ getPlatformFees:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:294
+    // smart_contracts/algo_smartcontract/contract.algo.ts:323
     // return this.platformFees.value
     retsub
 
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.getPlatformStats() -> bytes:
 getPlatformStats:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:300
+    // smart_contracts/algo_smartcontract/contract.algo.ts:329
     // getPlatformStats(): string {
     proto 0 1
     // smart_contracts/algo_smartcontract/contract.algo.ts:5
@@ -1435,19 +1544,19 @@ getPlatformStats:
     swap
     cover 2
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:304
+    // smart_contracts/algo_smartcontract/contract.algo.ts:333
     // if (investors === 0 && startups === 0) {
     bnz getPlatformStats_after_if_else@3
     frame_dig 0
     bnz getPlatformStats_after_if_else@3
-    // smart_contracts/algo_smartcontract/contract.algo.ts:305
+    // smart_contracts/algo_smartcontract/contract.algo.ts:334
     // return 'AlgoCredit Platform: Ready for users'
     pushbytes "AlgoCredit Platform: Ready for users"
     swap
     retsub
 
 getPlatformStats_after_if_else@3:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:308
+    // smart_contracts/algo_smartcontract/contract.algo.ts:337
     // return 'AlgoCredit Platform: Active'
     pushbytes "AlgoCredit Platform: Active"
     swap
@@ -1456,30 +1565,30 @@ getPlatformStats_after_if_else@3:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.realLoanFunding(loanId: uint64, amount: uint64) -> bytes:
 realLoanFunding:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:321
+    // smart_contracts/algo_smartcontract/contract.algo.ts:350
     // realLoanFunding(loanId: uint64, amount: uint64): string {
     proto 2 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:323
+    // smart_contracts/algo_smartcontract/contract.algo.ts:352
     // if (amount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz realLoanFunding_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:324
+    // smart_contracts/algo_smartcontract/contract.algo.ts:353
     // return 'Funding amount must be greater than 0'
-    bytec 13 // "Funding amount must be greater than 0"
+    bytec 15 // "Funding amount must be greater than 0"
     retsub
 
 realLoanFunding_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:327
+    // smart_contracts/algo_smartcontract/contract.algo.ts:356
     // if (loanId <= 0) {
     frame_dig -2
     intc_0 // 0
     <=
     bz realLoanFunding_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:328
+    // smart_contracts/algo_smartcontract/contract.algo.ts:357
     // return 'Invalid loan ID'
-    bytec 14 // "Invalid loan ID"
+    bytec 16 // "Invalid loan ID"
     retsub
 
 realLoanFunding_after_if_else@4:
@@ -1495,15 +1604,15 @@ realLoanFunding_after_if_else@4:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:332
+    // smart_contracts/algo_smartcontract/contract.algo.ts:361
     // if (amount > this.totalFundsDeposited.value - this.totalFundsInvested.value) {
     -
     frame_dig -1
     <
     bz realLoanFunding_after_if_else@6
-    // smart_contracts/algo_smartcontract/contract.algo.ts:333
+    // smart_contracts/algo_smartcontract/contract.algo.ts:362
     // return 'Insufficient available funds'
-    bytec 15 // "Insufficient available funds"
+    bytec 17 // "Insufficient available funds"
     retsub
 
 realLoanFunding_after_if_else@6:
@@ -1513,14 +1622,14 @@ realLoanFunding_after_if_else@6:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:337
+    // smart_contracts/algo_smartcontract/contract.algo.ts:366
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     frame_dig -1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:9
     // totalFundsInvested = GlobalState<uint64>()
     bytec_1 // "totalFundsInvested"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:337
+    // smart_contracts/algo_smartcontract/contract.algo.ts:366
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     swap
     app_global_put
@@ -1530,14 +1639,14 @@ realLoanFunding_after_if_else@6:
     bytec 5 // "totalActiveLoans"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:338
+    // smart_contracts/algo_smartcontract/contract.algo.ts:367
     // this.totalActiveLoans.value = this.totalActiveLoans.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:11
     // totalActiveLoans = GlobalState<uint64>()
     bytec 5 // "totalActiveLoans"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:338
+    // smart_contracts/algo_smartcontract/contract.algo.ts:367
     // this.totalActiveLoans.value = this.totalActiveLoans.value + 1
     swap
     app_global_put
@@ -1547,7 +1656,7 @@ realLoanFunding_after_if_else@6:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:341
+    // smart_contracts/algo_smartcontract/contract.algo.ts:370
     // this.platformFees.value = this.platformFees.value + (amount / 50)
     frame_dig -1
     intc_3 // 50
@@ -1556,11 +1665,11 @@ realLoanFunding_after_if_else@6:
     // smart_contracts/algo_smartcontract/contract.algo.ts:13
     // platformFees = GlobalState<uint64>()
     bytec_3 // "platformFees"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:341
+    // smart_contracts/algo_smartcontract/contract.algo.ts:370
     // this.platformFees.value = this.platformFees.value + (amount / 50)
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:346
+    // smart_contracts/algo_smartcontract/contract.algo.ts:375
     // return 'Real loan funding processed successfully'
     pushbytes "Real loan funding processed successfully"
     retsub
@@ -1568,30 +1677,30 @@ realLoanFunding_after_if_else@6:
 
 // smart_contracts/algo_smartcontract/contract.algo.ts::AlgoCreditPlatformTestNet.simulateLoanFunding(loanId: uint64, amount: uint64) -> bytes:
 simulateLoanFunding:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:352
+    // smart_contracts/algo_smartcontract/contract.algo.ts:381
     // simulateLoanFunding(loanId: uint64, amount: uint64): string {
     proto 2 1
-    // smart_contracts/algo_smartcontract/contract.algo.ts:354
+    // smart_contracts/algo_smartcontract/contract.algo.ts:383
     // if (amount <= 0) {
     frame_dig -1
     intc_0 // 0
     <=
     bz simulateLoanFunding_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:355
+    // smart_contracts/algo_smartcontract/contract.algo.ts:384
     // return 'Funding amount must be greater than 0'
-    bytec 13 // "Funding amount must be greater than 0"
+    bytec 15 // "Funding amount must be greater than 0"
     retsub
 
 simulateLoanFunding_after_if_else@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:358
+    // smart_contracts/algo_smartcontract/contract.algo.ts:387
     // if (loanId <= 0) {
     frame_dig -2
     intc_0 // 0
     <=
     bz simulateLoanFunding_after_if_else@4
-    // smart_contracts/algo_smartcontract/contract.algo.ts:359
+    // smart_contracts/algo_smartcontract/contract.algo.ts:388
     // return 'Invalid loan ID'
-    bytec 14 // "Invalid loan ID"
+    bytec 16 // "Invalid loan ID"
     retsub
 
 simulateLoanFunding_after_if_else@4:
@@ -1607,15 +1716,15 @@ simulateLoanFunding_after_if_else@4:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:363
+    // smart_contracts/algo_smartcontract/contract.algo.ts:392
     // if (amount > this.totalFundsDeposited.value - this.totalFundsInvested.value) {
     -
     frame_dig -1
     <
     bz simulateLoanFunding_after_if_else@6
-    // smart_contracts/algo_smartcontract/contract.algo.ts:364
+    // smart_contracts/algo_smartcontract/contract.algo.ts:393
     // return 'Insufficient available funds'
-    bytec 15 // "Insufficient available funds"
+    bytec 17 // "Insufficient available funds"
     retsub
 
 simulateLoanFunding_after_if_else@6:
@@ -1625,14 +1734,14 @@ simulateLoanFunding_after_if_else@6:
     bytec_1 // "totalFundsInvested"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:368
+    // smart_contracts/algo_smartcontract/contract.algo.ts:397
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     frame_dig -1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:9
     // totalFundsInvested = GlobalState<uint64>()
     bytec_1 // "totalFundsInvested"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:368
+    // smart_contracts/algo_smartcontract/contract.algo.ts:397
     // this.totalFundsInvested.value = this.totalFundsInvested.value + amount
     swap
     app_global_put
@@ -1642,14 +1751,14 @@ simulateLoanFunding_after_if_else@6:
     bytec 5 // "totalActiveLoans"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:369
+    // smart_contracts/algo_smartcontract/contract.algo.ts:398
     // this.totalActiveLoans.value = this.totalActiveLoans.value + 1
     intc_1 // 1
     +
     // smart_contracts/algo_smartcontract/contract.algo.ts:11
     // totalActiveLoans = GlobalState<uint64>()
     bytec 5 // "totalActiveLoans"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:369
+    // smart_contracts/algo_smartcontract/contract.algo.ts:398
     // this.totalActiveLoans.value = this.totalActiveLoans.value + 1
     swap
     app_global_put
@@ -1659,7 +1768,7 @@ simulateLoanFunding_after_if_else@6:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:372
+    // smart_contracts/algo_smartcontract/contract.algo.ts:401
     // this.platformFees.value = this.platformFees.value + (amount / 50)
     frame_dig -1
     intc_3 // 50
@@ -1668,11 +1777,11 @@ simulateLoanFunding_after_if_else@6:
     // smart_contracts/algo_smartcontract/contract.algo.ts:13
     // platformFees = GlobalState<uint64>()
     bytec_3 // "platformFees"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:372
+    // smart_contracts/algo_smartcontract/contract.algo.ts:401
     // this.platformFees.value = this.platformFees.value + (amount / 50)
     swap
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:374
+    // smart_contracts/algo_smartcontract/contract.algo.ts:403
     // return 'Loan funding simulated successfully'
     pushbytes "Loan funding simulated successfully"
     retsub
@@ -1686,7 +1795,7 @@ getActiveLoansCount:
     bytec 5 // "totalActiveLoans"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:390
+    // smart_contracts/algo_smartcontract/contract.algo.ts:419
     // return this.totalActiveLoans.value
     retsub
 
@@ -1699,7 +1808,7 @@ togglePlatformStatus:
     bytec 4 // "contractActive"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:397
+    // smart_contracts/algo_smartcontract/contract.algo.ts:426
     // if (this.contractActive.value === 1) {
     intc_1 // 1
     ==
@@ -1707,11 +1816,11 @@ togglePlatformStatus:
     // smart_contracts/algo_smartcontract/contract.algo.ts:14
     // contractActive = GlobalState<uint64>() // 1 = active, 0 = inactive
     bytec 4 // "contractActive"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:398
+    // smart_contracts/algo_smartcontract/contract.algo.ts:427
     // this.contractActive.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:399
+    // smart_contracts/algo_smartcontract/contract.algo.ts:428
     // return 'Platform deactivated'
     pushbytes "Platform deactivated"
     retsub
@@ -1720,11 +1829,11 @@ togglePlatformStatus_else_body@2:
     // smart_contracts/algo_smartcontract/contract.algo.ts:14
     // contractActive = GlobalState<uint64>() // 1 = active, 0 = inactive
     bytec 4 // "contractActive"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:401
+    // smart_contracts/algo_smartcontract/contract.algo.ts:430
     // this.contractActive.value = 1
     intc_1 // 1
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:402
+    // smart_contracts/algo_smartcontract/contract.algo.ts:431
     // return 'Platform activated'
     pushbytes "Platform activated"
     retsub
@@ -1738,12 +1847,12 @@ collectPlatformFees:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:412
+    // smart_contracts/algo_smartcontract/contract.algo.ts:441
     // if (fees <= 0) {
     intc_0 // 0
     <=
     bz collectPlatformFees_after_if_else@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:413
+    // smart_contracts/algo_smartcontract/contract.algo.ts:442
     // return 'No fees available for collection'
     pushbytes "No fees available for collection"
     retsub
@@ -1752,11 +1861,11 @@ collectPlatformFees_after_if_else@2:
     // smart_contracts/algo_smartcontract/contract.algo.ts:13
     // platformFees = GlobalState<uint64>()
     bytec_3 // "platformFees"
-    // smart_contracts/algo_smartcontract/contract.algo.ts:417
+    // smart_contracts/algo_smartcontract/contract.algo.ts:446
     // this.platformFees.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/algo_smartcontract/contract.algo.ts:422
+    // smart_contracts/algo_smartcontract/contract.algo.ts:451
     // return 'Platform fees collected successfully'
     pushbytes "Platform fees collected successfully"
     retsub
@@ -1770,7 +1879,7 @@ getPlatformFeesAmount:
     bytec_3 // "platformFees"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:429
+    // smart_contracts/algo_smartcontract/contract.algo.ts:458
     // return this.platformFees.value
     retsub
 
@@ -1783,18 +1892,18 @@ testPlatform:
     bytec 4 // "contractActive"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/algo_smartcontract/contract.algo.ts:437
+    // smart_contracts/algo_smartcontract/contract.algo.ts:466
     // if (active === 1) {
     intc_1 // 1
     ==
     bz testPlatform_else_body@2
-    // smart_contracts/algo_smartcontract/contract.algo.ts:438
+    // smart_contracts/algo_smartcontract/contract.algo.ts:467
     // return 'AlgoCredit Platform test successful - ACTIVE'
     pushbytes "AlgoCredit Platform test successful - ACTIVE"
     retsub
 
 testPlatform_else_body@2:
-    // smart_contracts/algo_smartcontract/contract.algo.ts:440
+    // smart_contracts/algo_smartcontract/contract.algo.ts:469
     // return 'AlgoCredit Platform test successful - INACTIVE'
     pushbytes "AlgoCredit Platform test successful - INACTIVE"
     retsub

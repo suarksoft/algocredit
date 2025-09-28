@@ -9,28 +9,43 @@ import blurCyanImage from '@/images/blur-cyan.png'
 import blurIndigoImage from '@/images/blur-indigo.png'
 
 const codeLanguage = 'javascript'
-const code = `// AI Credit Scoring Example
-const creditScore = await analyzeWallet({
-  address: "ALGO123...456",
-  onChain: {
-    accountAge: 365, // days
-    txCount: 1247,
-    volume: 50000, // ALGO
-    dappUsage: 8
-  },
-  offChain: {
-    revenue: 25000, // monthly
-    teamExp: 5, // years
-    growth: 15 // % monthly
-  }
-});
+const code = `// 🛡️ AlgoCredit Web3 Security Firewall
+import { AlgoCreditSecurity } from '@algocredit/sdk'
 
-// Result: 750 (Excellent Credit)
-console.log(\`Score: \${creditScore.score}\`);`
+const security = new AlgoCreditSecurity({
+  apiKey: 'ac_live_915aa39a909e88d18f71c400bad2cfb0',
+  baseUrl: 'https://api.algocredit.io',
+  tier: 'enterprise'
+})
+
+// 🚨 Real-time threat detection
+const threatAnalysis = await security.validateTransaction({
+  wallet: "RZ63HGZIZJ2DFK75NBPVGKZYBADAKDY3WENWKYJY7ISV2VDFQUHWHR7MXE",
+  transaction: {
+    amount: 5000000, // 5 ALGO
+    to: "U66YQKAWIN3G623D4T62W2QXTIHJIK4AIMNTPF3YYFOKUM7UDL7YOXJN6I",
+    type: "payment"
+  }
+})
+
+if (threatAnalysis.riskScore > 8.0) {
+  throw new SecurityError("🚨 Malicious transaction blocked")
+}
+
+// 🧠 AI-powered credit scoring
+const creditScore = await security.getCreditScore({
+  address: "RZ63HGZIZJ2DFK75NBPVGKZYBADAKDY3WENWKYJY7ISV2VDFQUHWHR7MXE"
+})
+
+console.log('🎯 Credit Score:', creditScore.score + '/850')
+console.log('📊 Risk Level:', creditScore.risk_level)
+console.log('💰 Max Loan:', creditScore.max_loan_amount/1000000 + ' ALGO')
+
+// ✅ Security validation passed - Ready for blockchain!`
 
 const tabs = [
-  { name: 'credit-analysis.js', isActive: true },
-  { name: 'loan-config.json', isActive: false },
+  { name: 'security-firewall.js', isActive: true },
+  { name: 'threat-detection.ts', isActive: false },
 ]
 
 function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -60,32 +75,32 @@ export function Hero() {
             />
             <div className="relative">
               <p className="inline bg-linear-to-r from-blue-200 via-purple-400 to-blue-200 bg-clip-text font-display text-5xl tracking-tight text-transparent">
-                AI-Powered DeFi Lending
+                AlgoCredit Security Firewall
               </p>
               <p className="mt-3 text-2xl tracking-tight text-slate-400">
-                Get instant loans for your startup with AI-driven credit scoring on Algorand blockchain. 
-                Revolutionary lending platform combining on-chain analysis with business metrics.
+                Enterprise-grade Web3 security platform for Algorand ecosystem. 
+                Advanced threat detection, AI-powered risk assessment, and real-time transaction validation.
               </p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
-                <Button href="/apply">Apply for Loan</Button>
-                <Button href="/dashboard" variant="secondary">
-                  View Dashboard
+                <Button href="/apply">Get API Key</Button>
+                <Button href="/docs" variant="secondary">
+                  Documentation
                 </Button>
               </div>
               
-              {/* Stats */}
+              {/* Security Stats */}
               <div className="mt-12 grid grid-cols-3 gap-8 text-center lg:text-left">
                 <div>
-                  <div className="text-2xl font-bold text-blue-400">&lt; 30s</div>
-                  <div className="text-sm text-slate-500">Loan Approval</div>
+                  <div className="text-2xl font-bold text-red-400">&lt; 50ms</div>
+                  <div className="text-sm text-slate-500">Threat Detection</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-purple-400">85%</div>
-                  <div className="text-sm text-slate-500">AI Accuracy</div>
+                  <div className="text-2xl font-bold text-purple-400">99.9%</div>
+                  <div className="text-sm text-slate-500">Security Accuracy</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-green-400">$10M+</div>
-                  <div className="text-sm text-slate-500">Total Loans</div>
+                  <div className="text-2xl font-bold text-green-400">15K+</div>
+                  <div className="text-sm text-slate-500">Threats Blocked</div>
                 </div>
               </div>
             </div>
