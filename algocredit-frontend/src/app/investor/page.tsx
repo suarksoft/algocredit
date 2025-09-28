@@ -95,7 +95,7 @@ export default function InvestorDashboard() {
   const checkInvestorStatus = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/user/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/user/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -123,7 +123,7 @@ export default function InvestorDashboard() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8001/investor/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/investor/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -157,7 +157,7 @@ export default function InvestorDashboard() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/investor/deposit', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/investor/deposit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -185,7 +185,7 @@ export default function InvestorDashboard() {
 
   const fetchAvailableStartups = async () => {
     try {
-      const response = await fetch('http://localhost:8001/startup/available')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/startup/available`)
       if (response.ok) {
         const data = await response.json()
         setAvailableStartups(data.available_startups)
@@ -199,7 +199,7 @@ export default function InvestorDashboard() {
     if (!investorData) return
     
     try {
-      const response = await fetch(`http://localhost:8001/investor/${investorData.user_id}/portfolio`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/investor/${investorData.user_id}/portfolio`)
       if (response.ok) {
         const data = await response.json()
         setPortfolio(data.investments)
@@ -214,7 +214,7 @@ export default function InvestorDashboard() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/funding/execute', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/funding/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

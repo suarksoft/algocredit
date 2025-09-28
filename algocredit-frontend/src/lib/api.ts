@@ -14,7 +14,7 @@ class OptimizedApiClient {
   private cache: Map<string, CacheItem> = new Map()
   private defaultTTL: number = 30000 // 30 seconds
 
-  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005') {
+  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000') {
     this.baseUrl = baseUrl
     
     // Clean expired cache every minute
@@ -262,7 +262,7 @@ class OptimizedApiClient {
 
   // WebSocket connection for real-time monitoring
   connectSecurityWebSocket(apiKey: string, onMessage: (data: any) => void): WebSocket {
-    const wsUrl = `ws://localhost:8001/ws/security-monitor?api_key=${apiKey}`
+    const wsUrl = `ws://localhost:8000/ws/security-monitor?api_key=${apiKey}`
     const ws = new WebSocket(wsUrl)
 
     ws.onmessage = (event) => {

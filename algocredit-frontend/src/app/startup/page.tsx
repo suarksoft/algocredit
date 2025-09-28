@@ -62,7 +62,7 @@ export default function StartupDashboard() {
   const checkStartupStatus = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8001/user/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/user/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,7 +91,7 @@ export default function StartupDashboard() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8001/startup/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/startup/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

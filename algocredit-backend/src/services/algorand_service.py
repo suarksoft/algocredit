@@ -348,6 +348,32 @@ class AlgorandService:
                 "error": str(e),
                 "node_health": "unhealthy"
             }
+    
+    async def register_api_key(self, wallet_address: str, api_key: str, tier: str) -> Dict:
+        """Register API key in smart contract"""
+        try:
+            # For now, just simulate smart contract call
+            # TODO: Implement actual smart contract interaction
+            transaction_id = f"api_reg_{uuid.uuid4().hex[:16]}"
+            
+            return {
+                "success": True,
+                "transaction_id": transaction_id,
+                "wallet_address": wallet_address,
+                "api_key": api_key[:8] + "...",  # Partial key for security
+                "tier": tier,
+                "contract_id": self.loan_pool_app_id,
+                "timestamp": datetime.now().isoformat(),
+                "network": "testnet"
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "wallet_address": wallet_address,
+                "tier": tier
+            }
 
 
 # Global instance

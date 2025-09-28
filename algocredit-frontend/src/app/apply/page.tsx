@@ -169,7 +169,7 @@ export default function ApplyPage() {
       }
 
       console.log('📝 Submitting secure loan application:', loanApplicationPayload)
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005'
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
       const loanResponse = await fetch(`${apiBaseUrl}/api/v1/loans/apply`, {
         method: 'POST',
         headers: {

@@ -239,7 +239,7 @@ export default function DocsPage() {
 
   const testEndpoint = async (endpoint: APIEndpoint) => {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005'
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
       let url = baseUrl + endpoint.path
       
       // Replace path parameters with example values
@@ -360,7 +360,7 @@ export default function DocsPage() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Base URL</h3>
                 </div>
                 <div className="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 font-mono text-sm">
-                  http://localhost:8005
+                  http://localhost:8000
                 </div>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                   Development server endpoint
@@ -401,13 +401,13 @@ export default function DocsPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">1. Health Check</h3>
                   <div className="bg-slate-900 rounded-lg p-4 text-green-400 font-mono text-sm overflow-x-auto">
-                    curl -X GET http://localhost:8005/health
+                    curl -X GET http://localhost:8000/health
                   </div>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">2. Get Credit Score</h3>
                   <div className="bg-slate-900 rounded-lg p-4 text-green-400 font-mono text-sm overflow-x-auto">
-                    curl -X POST http://localhost:8005/api/v1/credit/score \\<br />
+                    curl -X POST http://localhost:8000/api/v1/credit/score \\<br />
                     &nbsp;&nbsp;-H "Content-Type: application/json" \\<br />
                     &nbsp;&nbsp;-d '{`{"wallet_address": "YOUR_WALLET_ADDRESS"}`}'
                   </div>
@@ -601,7 +601,7 @@ export default function DocsPage() {
                   <pre className="bg-slate-900 text-green-400 p-6 rounded-lg overflow-x-auto text-sm">
 {`// Get credit score
 const getCreditScore = async (walletAddress: string) => {
-  const response = await fetch('http://localhost:8005/api/v1/credit/score', {
+  const response = await fetch('http://localhost:8000/api/v1/credit/score', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -626,7 +626,7 @@ const getCreditScore = async (walletAddress: string) => {
 {`import requests
 
 def get_credit_score(wallet_address: str):
-    url = "http://localhost:8005/api/v1/credit/score"
+    url = "http://localhost:8000/api/v1/credit/score"
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer YOUR_API_KEY"
@@ -645,7 +645,7 @@ def get_credit_score(wallet_address: str):
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">cURL</h3>
                   <pre className="bg-slate-900 text-green-400 p-6 rounded-lg overflow-x-auto text-sm">
-{`curl -X POST "http://localhost:8005/api/v1/credit/score" \\
+{`curl -X POST "http://localhost:8000/api/v1/credit/score" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -d '{

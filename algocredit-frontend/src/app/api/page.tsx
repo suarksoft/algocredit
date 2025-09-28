@@ -13,7 +13,7 @@ export default function ApiPage() {
   const generateApiKey = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8005/api/web3-security/generate-key', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/security/generate-key`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -50,7 +50,7 @@ export default function ApiPage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8005/api/web3-security/analyze', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/security/validate-transaction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export default function ApiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
@@ -88,29 +88,29 @@ export default function ApiPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
             AlgoCredit Web3 Security API
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Geliştiriciler için profesyonel Web3 güvenlik analiz API'si. Smart contract'ları ve transaction'ları gerçek zamanlı analiz edin, 
             güvenlik açıklarını tespit edin ve blockchain uygulamalarınızı koruyun.
           </p>
         </div>
 
         {/* API Key Generation Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
           <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m0 0a2 2 0 002 2M9 7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H9z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">API Key Management</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">API Key Management</h2>
           </div>
           
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                 Your API Key
               </label>
               <div className="flex space-x-3">
@@ -119,7 +119,7 @@ export default function ApiPage() {
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="Generate or paste your API key here"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   readOnly={isLoading}
                 />
                 {apiKey && (
@@ -254,7 +254,7 @@ export default function ApiPage() {
                   WebSocket Connection:
                 </h4>
                 <pre className="bg-gray-900 text-gray-300 p-4 rounded-xl text-sm overflow-x-auto">
-{`ws://localhost:8005/ws/security-monitor?api_key=YOUR_API_KEY`}
+{`ws://localhost:8000/ws/security-monitor?api_key=YOUR_API_KEY`}
                 </pre>
               </div>
             </div>

@@ -62,7 +62,7 @@ export default function AIRiskCalculator({ onAnalysisComplete }: AIRiskCalculato
     setAnalysis(null)
 
     try {
-      const response = await fetch('http://localhost:8001/api/v1/credit/ai-risk-analysis', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/credit/ai-risk-analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

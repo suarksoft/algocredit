@@ -320,7 +320,7 @@ class AlgoCreditSecurityAPI {
 // Export singleton instance
 export const securityAPI = new AlgoCreditSecurityAPI({
   apiKey: process.env.NEXT_PUBLIC_ALGOCREDIT_API_KEY || 'ac_live_915aa39a909e88d18f71c400bad2cfb0',
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
   tier: 'pro'
 })
 

@@ -1,20 +1,33 @@
 # AlgoCredit Backend Environment Variables
+# Development Configuration
+
+# Server Configuration
+HOST=0.0.0.0
+PORT=8000
 
 # Database Configuration
-DATABASE_URL=postgresql://postgres:Option0601@localhost:5432/algocredit
-# For development, you can use SQLite: sqlite:///./algocredit.db
+DATABASE_URL=sqlite:///./algocredit.db
+# For production, use PostgreSQL: postgresql://postgres:password@localhost:5432/algocredit
+
+# Redis Configuration
+REDIS_URL=redis://localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=1
 
 # Algorand Configuration
 ALGORAND_NODE_URL=https://testnet-api.algonode.cloud
 ALGORAND_INDEXER_URL=https://testnet-idx.algonode.cloud
 ALGORAND_NETWORK=testnet
+ALGORAND_ALGOD_TOKEN=
+ALGORAND_INDEXER_TOKEN=
 
 # Admin Wallet (for smart contract deployment)
 ADMIN_PRIVATE_KEY=your_algorand_private_key_here
 ADMIN_ADDRESS=your_algorand_address_here
 
 # Smart Contracts
-LOAN_POOL_CONTRACT_ID=your_deployed_contract_id
+LOAN_POOL_CONTRACT_ID=746537075
 CREDIT_TOKEN_ASA_ID=your_token_asa_id
 
 # Security
@@ -31,4 +44,4 @@ DEBUG=true
 LOG_LEVEL=info
 
 # CORS Settings
-ALLOWED_ORIGINS=http://localhost:3000,https://algocredit.vercel.app
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://algocredit.vercel.app

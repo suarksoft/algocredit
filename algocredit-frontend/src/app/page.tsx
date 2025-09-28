@@ -101,7 +101,7 @@ export default function HomePage() {
       if (isConnected && walletAddress && !autoRiskAnalysis) {
         try {
           console.log('🤖 Performing auto AI risk analysis for wallet:', walletAddress)
-          const response = await fetch('http://localhost:8001/api/v1/credit/ai-risk-analysis', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/credit/ai-risk-analysis`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1038,7 +1038,7 @@ if (validation.validation_result.risk_score > 5.0) {
                 
                 <Button 
                   variant="secondary"
-                  onClick={() => window.open('http://localhost:8000/docs', '_blank')}
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/docs`, '_blank')}
                   className="border-blue-400 text-blue-100 hover:bg-blue-500/10 backdrop-blur-sm px-8 py-4 text-lg font-semibold"
                 >
                   <CodeBracketIcon className="mr-2 h-5 w-5" />

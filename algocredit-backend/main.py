@@ -18,6 +18,7 @@ from datetime import datetime
 
 # Import services
 from src.services.credit_scoring_service import credit_scoring_service
+from src.services.algorand_service import algorand_service
 
 # Import existing routers (will adapt them)
 from src.api.credit import router as credit_router
@@ -143,6 +144,19 @@ async def get_model_info():
     """Get AI model information and status"""
     return credit_scoring_service.get_model_info()
 
+# Smart contract helper functions
+async def register_api_key_in_contract(wallet_address: str, api_key: str, tier: str):
+    """Register API key in smart contract"""
+    try:
+        result = await algorand_service.register_api_key(
+            wallet_address=wallet_address,
+            api_key=api_key,
+            tier=tier
+        )
+        return result
+    except Exception as e:
+        print(f"Smart contract API key registration failed: {e}")
+        raise e
 
 # ============================================================================
 # WEB3 SECURITY FIREWALL ENDPOINTS
@@ -203,8 +217,12 @@ async def generate_wallet_api_key(
             wallet_address
         )
         
-        # TODO: Register in smart contract
-        # await register_api_key_in_contract(wallet_address, api_key, tier)
+        # Register in smart contract
+        try:
+            await register_api_key_in_contract(wallet_address, api_key, tier)
+        except Exception as e:
+            print(f"Smart contract registration failed: {e}")
+            # Continue anyway - API key still works without blockchain registration
         
         return {
             "api_key": api_key,
@@ -216,8 +234,8 @@ async def generate_wallet_api_key(
                 "header": "Authorization: Bearer <api_key>",
                 "alternative": "X-API-Key: <api_key>",
                 "rate_limits": web3_security.api_manager._get_tier_rate_limits(tier),
-                "smart_contract_id": "746510137",
-                "testnet_address": "U66YQKAWIN3G623D4T62W2QXTIHJIK4AIMNTPF3YYFOKUM7UDL7YOXJN6I"
+                "smart_contract_id": "746537075",
+                "testnet_address": "C57BAHYM3QSQZWYOWB5HMNJUSBFCIZTNEK6JZX3VL2NDZ3UQ5HPOINCABU"
             }
         }
         
@@ -319,6 +337,35 @@ async def get_threat_intelligence(
     except Exception as e:
         logger.error(f"Error getting threat intelligence: {e}")
         raise HTTPException(status_code=500, detail="Failed to get threat intelligence")
+
+@app.post("/api/v1/credit/ai-risk-analysis", tags=["Credit Scoring"])
+async def ai_risk_analysis(request: dict):
+    """
+    AI-powered risk analysis for wallet address
+    No authentication required for demo purposes
+    """
+    try:
+        wallet_address = request.get("wallet_address")
+        if not wallet_address:
+            raise HTTPException(status_code=400, detail="Wallet address is required")
+        
+        # Use the AI credit scoring service
+        credit_assessment = await credit_scoring_service.analyze_wallet_and_score(wallet_address)
+        
+        # Format response for frontend
+        return {
+            "wallet_address": wallet_address,
+            "ai_risk_score": credit_assessment.get("credit_score", 500),
+            "credit_score": credit_assessment.get("credit_score", 500),
+            "risk_level": credit_assessment.get("risk_level", "MEDIUM"),
+            "confidence": credit_assessment.get("confidence", 75.0),
+            "recommendation": credit_assessment.get("insights", ["Analysis completed"])[0] if credit_assessment.get("insights") else "Analysis completed",
+            "analysis_timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in AI risk analysis: {e}")
+        raise HTTPException(status_code=500, detail="AI risk analysis failed")
 
 @app.post("/api/v1/credit/score", tags=["Credit Scoring"])
 async def get_credit_score(
@@ -495,7 +542,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8004,
+        port=8000,
         reload=True,
         log_level="info"
     )
