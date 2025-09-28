@@ -104,6 +104,39 @@ npm install
 Create `.env` files in respective directories:
 
 **Backend (.env)**
+# AlgoCredit Backend Environment Variables
+
+
+
+# Algorand Configuration
+ALGORAND_NODE_URL=https://testnet-api.algonode.cloud
+ALGORAND_INDEXER_URL=https://testnet-idx.algonode.cloud
+ALGORAND_NETWORK=testnet
+
+# Admin Wallet (for smart contract deployment)
+ADMIN_PRIVATE_KEY=your_algorand_private_key_here
+ADMIN_ADDRESS=your_algorand_address_here
+
+# Smart Contracts
+LOAN_POOL_CONTRACT_ID=746537075
+CREDIT_TOKEN_ASA_ID=your_token_asa_id
+
+# Security
+JWT_SECRET_KEY=your_super_secret_jwt_key_here
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=60
+
+# External APIs
+OPENWEATHER_API_KEY=your_api_key_if_needed
+COINGECKO_API_KEY=your_api_key_if_needed
+
+# Development Settings
+DEBUG=true
+LOG_LEVEL=info
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:3000,https://algocredit.vercel.app
+
 ```env
 ALGORAND_NETWORK=testnet
 DATABASE_URL=sqlite:///./algocredit.db
