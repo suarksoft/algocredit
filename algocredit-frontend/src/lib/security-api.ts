@@ -261,9 +261,18 @@ class AlgoCreditSecurityAPI {
    */
   async getSecurityDashboard(apiKey: string, hours: number = 24): Promise<SecurityDashboard> {
     try {
+      // Create headers with the specific API key for this request
+      const dashboardHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'X-API-Key': apiKey,
+        'X-API-Version': 'v1',
+        'X-Client': 'AlgoCredit-Frontend'
+      }
+
       const response = await fetch(`${this.config.baseUrl}/api/v1/security/dashboard/${apiKey}?hours=${hours}`, {
         method: 'GET',
-        headers: this.baseHeaders
+        headers: dashboardHeaders
       })
 
       if (!response.ok) {
