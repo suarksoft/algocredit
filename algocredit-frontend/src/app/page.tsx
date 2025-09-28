@@ -301,7 +301,7 @@ export default function HomePage() {
                         </h3>
                       </div>
                       <p className="text-blue-200 mb-4">
-                        {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
+                        {walletAddress?.slice(0, 8)}...{walletAddress?.slice(-8)}
                       </p>
                       
                       {walletApiKey ? (
@@ -401,7 +401,7 @@ export default function HomePage() {
                 {/* Demo Button */}
                 <div className="text-center">
                   <Button 
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => setShowSecurityDemo(true)}
                     className="border-blue-400 text-blue-100 hover:bg-blue-500/10 backdrop-blur-sm px-6 py-3"
                   >
@@ -885,7 +885,7 @@ if (validation.validation_result.risk_score > 5.0) {
                   )}
             </div>
 
-                <SecurityDashboard apiKey={demoApiKey || apiKey} />
+                <SecurityDashboard apiKey={demoApiKey || apiKey || undefined} />
               </div>
             </div>
           </section>
@@ -1005,7 +1005,7 @@ if (validation.validation_result.risk_score > 5.0) {
                   </li>
                 </ul>
                 <Button 
-                  variant="outline"
+                  variant="secondary"
                   className="w-full border-white/30 text-white hover:bg-white/10"
                 >
                   Contact Sales
@@ -1036,7 +1036,7 @@ if (validation.validation_result.risk_score > 5.0) {
               </Button>
                 
                 <Button 
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => window.open('http://localhost:8000/docs', '_blank')}
                   className="border-blue-400 text-blue-100 hover:bg-blue-500/10 backdrop-blur-sm px-8 py-4 text-lg font-semibold"
                 >
