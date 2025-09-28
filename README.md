@@ -72,9 +72,9 @@ npm run dev
 ```
 
 ### 4. Access the Platform
-- **Frontend**: http://localhost:3002
-- **Backend API**: http://localhost:8001
-- **API Docs**: http://localhost:8001/docs
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
 ## 🛠️ Installation
 
@@ -104,6 +104,39 @@ npm install
 Create `.env` files in respective directories:
 
 **Backend (.env)**
+# AlgoCredit Backend Environment Variables
+
+
+
+# Algorand Configuration
+ALGORAND_NODE_URL=https://testnet-api.algonode.cloud
+ALGORAND_INDEXER_URL=https://testnet-idx.algonode.cloud
+ALGORAND_NETWORK=testnet
+
+# Admin Wallet (for smart contract deployment)
+ADMIN_PRIVATE_KEY=your_algorand_private_key_here
+ADMIN_ADDRESS=your_algorand_address_here
+
+# Smart Contracts
+LOAN_POOL_CONTRACT_ID=746537075
+CREDIT_TOKEN_ASA_ID=your_token_asa_id
+
+# Security
+JWT_SECRET_KEY=your_super_secret_jwt_key_here
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=60
+
+# External APIs
+OPENWEATHER_API_KEY=your_api_key_if_needed
+COINGECKO_API_KEY=your_api_key_if_needed
+
+# Development Settings
+DEBUG=true
+LOG_LEVEL=info
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:3000,https://algocredit.vercel.app
+
 ```env
 ALGORAND_NETWORK=testnet
 DATABASE_URL=sqlite:///./algocredit.db
@@ -112,8 +145,40 @@ API_SECRET_KEY=your-secret-key
 ```
 
 **Frontend (.env.local)**
+
+
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL_ALT=http://localhost:8000
+
+# Algorand Network Configuration
+NEXT_PUBLIC_ALGORAND_NETWORK=testnet
+NEXT_PUBLIC_ALGORAND_NODE_URL=https://testnet-api.algonode.cloud
+NEXT_PUBLIC_ALGORAND_INDEXER_URL=https://testnet-idx.algonode.cloud
+NEXT_PUBLIC_ALGORAND_CHAIN_ID=416002
+
+# Pera Wallet Configuration
+NEXT_PUBLIC_PERAWALLET_CHAIN_ID=416002
+
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=AlgoCredit
+NEXT_PUBLIC_APP_VERSION=1.0.0
+NEXT_PUBLIC_APP_ENVIRONMENT=development
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_BLOCKCHAIN=true
+NEXT_PUBLIC_ENABLE_AI_SCORING=true
+NEXT_PUBLIC_ENABLE_CACHING=true
+
+# Performance Configuration
+NEXT_PUBLIC_CACHE_TTL=30000
+NEXT_PUBLIC_API_TIMEOUT=10000
+
+# Demo Configuration
+NEXT_PUBLIC_DEMO_MODE=false
+NEXT_PUBLIC_MOCK_DATA=false
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8001
+NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_ALGORAND_NETWORK=testnet
 ```
 
@@ -305,10 +370,10 @@ npm run build
 
 ## 📞 Support
 
-- **Documentation**: [docs.algocredit.io](https://docs.algocredit.io)
+
 - **Issues**: [GitHub Issues](https://github.com/suarksoft/algocredit/issues)
-- **Discord**: [Join our community](https://discord.gg/algocredit)
-- **Email**: support@algocredit.io
+
+- **Email**: dev.bugrakurnaz@gmail.com
 
 ## 📄 License
 
