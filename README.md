@@ -112,6 +112,38 @@ API_SECRET_KEY=your-secret-key
 ```
 
 **Frontend (.env.local)**
+
+
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL_ALT=http://localhost:8000
+
+# Algorand Network Configuration
+NEXT_PUBLIC_ALGORAND_NETWORK=testnet
+NEXT_PUBLIC_ALGORAND_NODE_URL=https://testnet-api.algonode.cloud
+NEXT_PUBLIC_ALGORAND_INDEXER_URL=https://testnet-idx.algonode.cloud
+NEXT_PUBLIC_ALGORAND_CHAIN_ID=416002
+
+# Pera Wallet Configuration
+NEXT_PUBLIC_PERAWALLET_CHAIN_ID=416002
+
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=AlgoCredit
+NEXT_PUBLIC_APP_VERSION=1.0.0
+NEXT_PUBLIC_APP_ENVIRONMENT=development
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_BLOCKCHAIN=true
+NEXT_PUBLIC_ENABLE_AI_SCORING=true
+NEXT_PUBLIC_ENABLE_CACHING=true
+
+# Performance Configuration
+NEXT_PUBLIC_CACHE_TTL=30000
+NEXT_PUBLIC_API_TIMEOUT=10000
+
+# Demo Configuration
+NEXT_PUBLIC_DEMO_MODE=false
+NEXT_PUBLIC_MOCK_DATA=false
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_ALGORAND_NETWORK=testnet
