@@ -157,3 +157,5 @@ if __name__ == '__main__':
     print('🔗 Health: http://localhost:8001/api/v1/security/health')
     print('🤖 AI Risk: http://localhost:8001/api/v1/credit/ai-risk-analysis')
     uvicorn.run(app, host='0.0.0.0', port=8001, reload=False)
+
+

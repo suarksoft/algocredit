@@ -21,7 +21,8 @@ from src.services.credit_scoring_service import credit_scoring_service
 
 # Import existing routers (will adapt them)
 from src.api.credit import router as credit_router
-from src.api.loans import router as loans_router
+from src.api.blockchain import router as blockchain_router
+# from src.api.loans import router as loans_router  # Temporarily disabled
 
 # Import Web3 Security Firewall
 from src.security.middleware import web3_security
@@ -85,12 +86,6 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 AlgoCredit API starting up...")
     print("🔗 Connecting to Algorand TestNet...")
-    print("🗄️  Initializing database...")
-    
-    # Initialize database
-    from src.models.database import create_tables
-    create_tables()
-    
     print("🤖 Loading AI models...")
     print("✅ AlgoCredit API ready!")
     
@@ -98,7 +93,6 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     print("🛑 AlgoCredit API shutting down...")
-    print("💾 Closing database connections...")
     print("👋 Goodbye!")
 
 
@@ -492,7 +486,8 @@ async def user_login(wallet: str, type: str):
 
 # Include API routers
 app.include_router(credit_router, prefix="/api/v1/credit", tags=["Credit Scoring"])
-app.include_router(loans_router, prefix="/api/v1/loans", tags=["Loans"])
+app.include_router(blockchain_router, prefix="/api/v1/blockchain", tags=["Blockchain"])
+# app.include_router(loans_router, prefix="/api/v1/loans", tags=["Loans"])  # Temporarily disabled
 # app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])  # Will be added later
 
 

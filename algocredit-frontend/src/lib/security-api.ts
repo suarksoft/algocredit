@@ -12,11 +12,30 @@ export interface SecurityConfig {
 export interface CreditScoreResponse {
   wallet_address: string
   credit_score: number
-  on_chain_score: number
-  off_chain_score: number
+  confidence: number
   risk_level: 'low' | 'medium' | 'high'
   max_loan_amount: number
   recommended_interest_rate: number
+  insights: string[]
+  assessment_breakdown: {
+    on_chain_score: number
+    stability_score: number
+    activity_score: number
+    diversity_score: number
+    defi_score: number
+  }
+  wallet_metrics: {
+    account_age_days: number
+    total_transactions: number
+    current_balance_algo: number
+    total_volume_algo: number
+  }
+  model_info: {
+    model_version: string
+    scoring_method: string
+    ai_enabled: boolean
+    assessment_timestamp: string
+  }
   security_context: {
     api_key_tier: string
     threat_score: number

@@ -13,6 +13,13 @@ export function Navigation({
 }) {
   let pathname = usePathname()
 
+  const handleLinkClick = (href: string, e: React.MouseEvent<HTMLAnchorElement>) => {
+    console.log('Navigation: Link clicked:', href)
+    if (onLinkClick) {
+      onLinkClick(e)
+    }
+  }
+
   return (
     <nav className={clsx('text-base lg:text-sm', className)}>
       <ul role="list" className="space-y-9">
@@ -29,7 +36,7 @@ export function Navigation({
                 <li key={link.href} className="relative">
                   <Link
                     href={link.href}
-                    onClick={onLinkClick}
+                    onClick={(e) => handleLinkClick(link.href, e)}
                     className={clsx(
                       'block w-full pl-3.5 before:pointer-events-none before:absolute before:top-1/2 before:-left-1 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full',
                       link.href === pathname

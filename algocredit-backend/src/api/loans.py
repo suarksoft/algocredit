@@ -1,16 +1,13 @@
 """
-Loan management API endpoints
+Loan management API endpoints (No Database - Smart Contract Only)
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timedelta
 import uuid
-from sqlalchemy.orm import Session
 
-from ..models.database import get_db
-from ..models.models import Loan, User, CreditAssessment
 from ..services.credit_scoring_service import credit_scoring_service
 from ..services.algorand_service import algorand_service
 
@@ -59,20 +56,17 @@ class LoanStatusResponse(BaseModel):
 
 
 @router.post("/apply", response_model=LoanApplicationResponse, summary="Apply for Loan")
-async def apply_for_loan(request: LoanApplicationRequest, db: Session = Depends(get_db)):
+async def apply_for_loan(request: LoanApplicationRequest):
     """
-    Submit a loan application
+    Submit a loan application with AI-powered credit assessment
     
-    This endpoint processes a loan application by:
-    1. Analyzing the borrower's credit score
-    2. Determining loan eligibility and terms
-    3. Creating a loan application record
-    4. Optionally auto-approving based on credit score
+    This endpoint:
+    1. Validates the loan application
+    2. Performs AI credit scoring
+    3. Makes automated loan decision
+    4. Returns loan approval/rejection with terms
     
-    **Approval Criteria:**
-    - Minimum credit score: 550
-    - Maximum loan amount based on credit score
-    - Automatic approval for scores > 700
+    All data will be stored in smart contracts (not database)
     """
     try:
         # Validate wallet address
@@ -82,37 +76,32 @@ async def apply_for_loan(request: LoanApplicationRequest, db: Session = Depends(
                 detail="Invalid Algorand wallet address format"
             )
         
-        # Generate credit assessment
-        credit_analysis = await credit_scoring_service.analyze_credit_score(
+        # Perform comprehensive credit assessment
+        credit_assessment = await credit_scoring_service.analyze_wallet_and_score(
             wallet_address=request.wallet_address,
+            requested_amount=request.requested_amount,
+            loan_term_months=request.loan_term_months,
             business_data=request.business_data
         )
         
-        credit_score = credit_analysis["credit_score"]
-        max_loan_amount = credit_analysis["max_loan_amount"]
-        recommended_rate = credit_analysis["recommended_interest_rate"]
-        risk_level = credit_analysis["risk_level"]
+        if not credit_assessment:
+            raise HTTPException(
+                status_code=400,
+                detail="Unable to assess creditworthiness"
+            )
         
-        # Get or create user
-        user = db.query(User).filter(User.wallet_address == request.wallet_address).first()
-        if not user:
-            user = User(wallet_address=request.wallet_address)
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+        # Loan decision logic based on AI assessment
+        credit_score = credit_assessment["credit_score"]
+        max_loan_amount = credit_assessment["max_loan_amount"]
+        risk_level = credit_assessment["risk_level"]
+        recommended_rate = credit_assessment["recommended_interest_rate"]
         
         # Determine loan approval
-        if credit_score < 550:
-            status = "rejected"
-            approved_amount = None
-            monthly_payment = None
-            total_due = None
-        else:
-            # Approve loan up to maximum allowed amount
+        if credit_score >= 650 and request.requested_amount <= max_loan_amount:
+            status = "approved"
             approved_amount = min(request.requested_amount, max_loan_amount)
-            status = "approved" if credit_score >= 650 else "pending_review"
             
-            # Calculate monthly payment and total due
+            # Calculate monthly payment
             monthly_rate = recommended_rate / 100 / 12
             num_payments = request.loan_term_months
             
@@ -126,31 +115,43 @@ async def apply_for_loan(request: LoanApplicationRequest, db: Session = Depends(
                 monthly_payment = int(approved_amount / num_payments)
             
             total_due = monthly_payment * num_payments
+            
+        elif credit_score >= 500:
+            status = "conditional_approval"
+            approved_amount = min(int(request.requested_amount * 0.7), max_loan_amount)
+            interest_rate = recommended_rate + 2
+            
+            monthly_rate = interest_rate / 100 / 12
+            num_payments = request.loan_term_months
+            
+            if monthly_rate > 0:
+                monthly_payment = int(
+                    approved_amount * 
+                    (monthly_rate * (1 + monthly_rate) ** num_payments) /
+                    ((1 + monthly_rate) ** num_payments - 1)
+                )
+            else:
+                monthly_payment = int(approved_amount / num_payments)
+            
+            total_due = monthly_payment * num_payments
+            recommended_rate = interest_rate
+            
+        else:
+            status = "rejected"
+            approved_amount = None
+            monthly_payment = None
+            total_due = None
+        
+        # Generate loan ID
+        loan_id = f"loan_{uuid.uuid4().hex[:12]}"
         
         # Calculate due date
         due_date = None
-        if status == "approved":
+        if status in ["approved", "conditional_approval"]:
             due_date = (datetime.now() + timedelta(days=request.loan_term_months * 30)).isoformat()
         
-        # Create loan application record
-        loan = Loan(
-            borrower_id=user.id,
-            requested_amount=request.requested_amount,
-            approved_amount=approved_amount,
-            interest_rate=recommended_rate,
-            term_months=request.loan_term_months,
-            status=status,
-            monthly_payment=monthly_payment,
-            total_amount_due=total_due,
-            due_date=datetime.fromisoformat(due_date) if due_date else None,
-            approved_at=datetime.now() if status == "approved" else None
-        )
-        db.add(loan)
-        db.commit()
-        db.refresh(loan)
-        
         response = LoanApplicationResponse(
-            application_id=loan.id,
+            application_id=loan_id,
             wallet_address=request.wallet_address,
             requested_amount=request.requested_amount,
             approved_amount=approved_amount,
@@ -164,14 +165,14 @@ async def apply_for_loan(request: LoanApplicationRequest, db: Session = Depends(
             smart_contract_id=None,  # Will be set after smart contract deployment
             transaction_id=None,     # Will be set after blockchain transaction
             application_timestamp=datetime.now().isoformat(),
-            approval_timestamp=datetime.now().isoformat() if status == "approved" else None,
+            approval_timestamp=datetime.now().isoformat() if status in ["approved", "conditional_approval"] else None,
             due_date=due_date
         )
         
         return response
         
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
