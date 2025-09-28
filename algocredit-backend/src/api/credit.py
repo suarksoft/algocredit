@@ -4,8 +4,12 @@ Credit scoring API endpoints
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import json
+from sqlalchemy.orm import Session
+
+from ..models.database import get_db
+from ..models.models import CreditAssessment, WalletAnalysis, User
 
 from ..services.credit_scoring_service import credit_scoring_service
 from ..services.algorand_service import algorand_service
@@ -47,8 +51,22 @@ class WalletAnalysisResponse(BaseModel):
     analysis_timestamp: str
 
 
+class BatchCreditScoreRequest(BaseModel):
+    """Request model for batch credit scoring"""
+    wallet_addresses: List[str] = Field(..., description="List of wallet addresses to analyze")
+    business_data: Optional[Dict[str, Any]] = None
+
+
+class BatchCreditScoreResponse(BaseModel):
+    """Response model for batch credit scoring"""
+    results: List[Dict[str, Any]]
+    processed_count: int
+    success_count: int
+    error_count: int
+
+
 @router.post("/score", response_model=CreditScoreResponse, summary="Generate Credit Score")
-async def generate_credit_score(request: CreditScoreRequest):
+async def generate_credit_score(request: CreditScoreRequest, db: Session = Depends(get_db)):
     """
     Generate comprehensive credit score for a wallet address
     
@@ -79,6 +97,33 @@ async def generate_credit_score(request: CreditScoreRequest):
             business_data=request.business_data
         )
         
+        # Get or create user
+        user = db.query(User).filter(User.wallet_address == request.wallet_address).first()
+        if not user:
+            user = User(
+                wallet_address=request.wallet_address
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        
+        # Save credit assessment to database
+        credit_assessment = CreditAssessment(
+            user_id=user.id,
+            credit_score=analysis["credit_score"],
+            on_chain_score=analysis["on_chain_score"],
+            off_chain_score=analysis["off_chain_score"],
+            risk_level=analysis["risk_level"],
+            max_loan_amount=analysis["max_loan_amount"],
+            recommended_interest_rate=analysis["recommended_interest_rate"],
+            assessment_data=json.dumps(analysis),
+            wallet_age_days=analysis.get("wallet_age_days", 1),
+            transaction_count=analysis.get("transaction_count", 0),
+            total_volume=analysis.get("total_volume", 0)
+        )
+        db.add(credit_assessment)
+        db.commit()
+        
         return CreditScoreResponse(**analysis)
         
     except ValueError as e:
@@ -91,7 +136,7 @@ async def generate_credit_score(request: CreditScoreRequest):
 
 
 @router.get("/wallet/{wallet_address}", response_model=WalletAnalysisResponse, summary="Analyze Wallet")
-async def analyze_wallet(wallet_address: str):
+async def analyze_wallet(wallet_address: str, db: Session = Depends(get_db)):
     """
     Get detailed blockchain analysis for a wallet address
     
@@ -129,8 +174,8 @@ async def analyze_wallet(wallet_address: str):
         )
 
 
-@router.post("/score/batch", summary="Batch Credit Score Analysis")
-async def batch_credit_score(wallet_addresses: list[str]):
+@router.post("/batch", response_model=BatchCreditScoreResponse, summary="Batch Credit Analysis")
+async def batch_credit_analysis(request: BatchCreditScoreRequest, db: Session = Depends(get_db)):
     """
     Generate credit scores for multiple wallet addresses
     
@@ -138,14 +183,17 @@ async def batch_credit_score(wallet_addresses: list[str]):
     Limited to 10 addresses per request to prevent abuse.
     """
     try:
-        if len(wallet_addresses) > 10:
+        if len(request.wallet_addresses) > 10:
             raise HTTPException(
                 status_code=400,
                 detail="Maximum 10 wallet addresses allowed per batch request"
             )
         
         results = []
-        for address in wallet_addresses:
+        success_count = 0
+        error_count = 0
+        
+        for address in request.wallet_addresses:
             if not algorand_service.is_valid_address(address):
                 results.append({
                     "wallet_address": address,
@@ -154,15 +202,25 @@ async def batch_credit_score(wallet_addresses: list[str]):
                 continue
             
             try:
-                analysis = await credit_scoring_service.analyze_credit_score(address)
+                analysis = await credit_scoring_service.analyze_credit_score(
+                    wallet_address=address,
+                    business_data=request.business_data
+                )
                 results.append(analysis)
+                success_count += 1
             except Exception as e:
                 results.append({
                     "wallet_address": address,
                     "error": f"Analysis failed: {str(e)}"
                 })
+                error_count += 1
         
-        return {"results": results}
+        return BatchCreditScoreResponse(
+            results=results,
+            processed_count=len(request.wallet_addresses),
+            success_count=success_count,
+            error_count=error_count
+        )
         
     except HTTPException:
         raise

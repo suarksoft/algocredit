@@ -28,6 +28,7 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = 
     balance,
     connectWallet,
     disconnectWallet,
+    getAccountInfo,
     error,
     clearError,
   } = useWalletStore()
@@ -37,6 +38,11 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = 
   }
 
   const formatBalance = (balance: number) => {
+    console.log('💰 Formatting balance:', {
+      rawBalance: balance,
+      convertedBalance: balance / 1_000_000,
+      formattedBalance: (balance / 1_000_000).toFixed(6)
+    })
     return (balance / 1_000_000).toFixed(6) // Convert microAlgos to ALGO
   }
 
@@ -57,6 +63,11 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = 
     if (onDisconnect) {
       onDisconnect()
     }
+  }
+
+  const handleRefreshBalance = async () => {
+    console.log('🔄 Refreshing balance manually...')
+    await getAccountInfo()
   }
 
   // Call onConnect when wallet becomes connected
@@ -86,6 +97,8 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = 
   }
 
   if (isConnected && walletAddress) {
+    console.log('🔍 Rendering connected wallet - Current balance:', balance)
+    
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
         <div className="flex items-center justify-between">
@@ -103,9 +116,19 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps = 
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm font-medium text-green-800 dark:text-green-200">
-              {formatBalance(balance)} ALGO
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                {formatBalance(balance)} ALGO
+              </p>
+              <Button
+                onClick={handleRefreshBalance}
+                variant="secondary"
+                className="h-6 w-6 p-0 border-green-200 text-green-700 hover:bg-green-100 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-900/40"
+                title="Refresh Balance"
+              >
+                <ArrowPathIcon className="h-3 w-3" />
+              </Button>
+            </div>
             <Button
               onClick={handleDisconnect}
               variant="secondary"

@@ -14,7 +14,7 @@ class OptimizedApiClient {
   private cache: Map<string, CacheItem> = new Map()
   private defaultTTL: number = 30000 // 30 seconds
 
-  constructor(baseUrl: string = 'http://localhost:8001') {
+  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8005') {
     this.baseUrl = baseUrl
     
     // Clean expired cache every minute

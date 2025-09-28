@@ -1,6 +1,6 @@
 /**
- * Corporate Treasury Marketplace - 24 Hour Sprint
- * Connecting Investors with Startups on Algorand
+ * AlgoCredit Web3 Security Firewall
+ * Enterprise-Grade Security Platform for Algorand Ecosystem
  */
 
 'use client'
@@ -8,6 +8,8 @@
 import { useState, useEffect } from 'react'
 import { WalletConnect } from '@/components/WalletConnect'
 import { Button } from '@/components/Button'
+import { useSecurityStore } from '@/stores/securityStore'
+import SecurityDashboard from '@/components/SecurityDashboard'
 import { 
   ChartBarIcon, 
   ShieldCheckIcon, 

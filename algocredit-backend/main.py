@@ -4,28 +4,46 @@ Corporate Treasury Marketplace API
 Yatırımcıları startup'larla buluşturan platform
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from typing import Optional, List
 import uvicorn
 import sqlite3
 import json
+import time
 from datetime import datetime
+
+# Import services
+from src.services.credit_scoring_service import credit_scoring_service
 
 # Import existing routers (will adapt them)
 from src.api.credit import router as credit_router
 from src.api.loans import router as loans_router
 
+# Import Web3 Security Firewall
+from src.security.middleware import web3_security
+from src.security.api_key_manager import SecurityContext
+from src.security.rate_limiter import RateLimitType
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Security dependency
+async def get_security_context(request: Request) -> SecurityContext:
+    """Security dependency for protected endpoints"""
+    return await web3_security.authenticate_request(request)
+
 # Application metadata
 app_metadata = {
-    "title": "Corporate Treasury Marketplace API",
-    "description": "Connecting Investors with Startups on Algorand",
-    "version": "24h-sprint-1.0.0",
+    "title": "AlgoCredit Web3 Security Firewall API",
+    "description": "Enterprise Web3 Security Platform for Algorand",
+    "version": "firewall-1.0.0",
     "contact": {
-        "name": "Corporate Treasury Team",
-        "url": "https://corporate-treasury.io",
+        "name": "AlgoCredit Security Team",
+        "url": "https://algocredit.io",
     },
     "license_info": {
         "name": "MIT",
@@ -68,6 +86,11 @@ async def lifespan(app: FastAPI):
     print("🚀 AlgoCredit API starting up...")
     print("🔗 Connecting to Algorand TestNet...")
     print("🗄️  Initializing database...")
+    
+    # Initialize database
+    from src.models.database import create_tables
+    create_tables()
+    
     print("🤖 Loading AI models...")
     print("✅ AlgoCredit API ready!")
     
@@ -88,7 +111,7 @@ app = FastAPI(
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://algocredit.vercel.app"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:8005", "https://algocredit.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -121,56 +144,267 @@ async def health_check():
 
 
 # Temporary credit scoring endpoint (will be moved to proper router)
-@app.post("/api/v1/credit/score", tags=["Credit Scoring"])
-async def get_credit_score(wallet_address: str):
+@app.get("/api/v1/credit/model-info", tags=["Credit Scoring"])
+async def get_model_info():
+    """Get AI model information and status"""
+    return credit_scoring_service.get_model_info()
+
+
+# ============================================================================
+# WEB3 SECURITY FIREWALL ENDPOINTS
+# ============================================================================
+
+@app.post("/api/v1/security/generate-key", tags=["Security"])
+async def generate_api_key(
+    user_id: str,
+    tier: str = "free",
+    request: Request = None
+):
     """
-    Temporary credit scoring endpoint
-    TODO: Move to proper credit router with full implementation
+    Generate new API key for Web3 Security Firewall
+    """
+    try:
+        # Validate tier
+        valid_tiers = ["free", "pro", "enterprise"]
+        if tier not in valid_tiers:
+            raise HTTPException(status_code=400, detail=f"Invalid tier. Must be one of: {valid_tiers}")
+        
+        # Generate API key
+        api_key = web3_security.api_manager.generate_api_key(user_id, tier)
+        
+        return {
+            "api_key": api_key,
+            "tier": tier,
+            "user_id": user_id,
+            "created_at": time.time(),
+            "usage_instructions": {
+                "header": "Authorization: Bearer <api_key>",
+                "alternative": "X-API-Key: <api_key>",
+                "rate_limits": web3_security.api_manager._get_tier_rate_limits(tier)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating API key: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate API key")
+
+@app.post("/api/v1/security/validate-transaction", tags=["Security"])
+async def validate_transaction(
+    request: Request,
+    security_context: SecurityContext = Depends(get_security_context)
+):
+    """
+    Validate transaction for security threats
+    Enterprise Web3 Security Firewall
+    """
+    try:
+        # Validate transaction using security middleware
+        validation_result = await web3_security.validate_transaction_request(request, security_context)
+        
+        return {
+            "security_status": "validated",
+            "api_key_tier": security_context.tier,
+            "threat_score": security_context.threat_score,
+            "validation_result": validation_result,
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in transaction validation: {e}")
+        raise HTTPException(status_code=500, detail="Security validation failed")
+
+@app.get("/api/v1/security/threat-intel/{wallet_address}", tags=["Security"])
+async def get_threat_intelligence(
+    wallet_address: str,
+    security_context: SecurityContext = Depends(get_security_context)
+):
+    """
+    Get threat intelligence for wallet address
+    """
+    try:
+        # Get wallet risk profile
+        risk_profile = web3_security.transaction_validator.get_wallet_risk_profile(wallet_address)
+        
+        # Get recent threat summary
+        threat_summary = web3_security.threat_detector.get_threat_summary(security_context.api_key_id)
+        
+        return {
+            "wallet_address": wallet_address,
+            "risk_profile": risk_profile,
+            "threat_summary": threat_summary,
+            "analysis_timestamp": time.time(),
+            "security_recommendations": [
+                "Monitor wallet activity",
+                "Check transaction patterns",
+                "Verify identity if high risk"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting threat intelligence: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get threat intelligence")
+
+@app.post("/api/v1/credit/score", tags=["Credit Scoring"])
+async def get_credit_score(
+    wallet_address: str,
+    security_context: SecurityContext = Depends(get_security_context)
+):
+    """
+    AI-powered credit scoring endpoint with Web3 Security
+    Uses trained ML model for accurate scoring
     """
     if not wallet_address:
         raise HTTPException(status_code=400, detail="Wallet address is required")
     
-    # Mock response for now
+    # Security validation for credit scoring request
+    start_time = time.time()
+    
+    try:
+        # Use the AI credit scoring service
+        credit_assessment = await credit_scoring_service.analyze_wallet_and_score(wallet_address)
+        
+        # Add security metadata
+        credit_assessment["security_context"] = {
+            "api_key_tier": security_context.tier,
+            "threat_score": security_context.threat_score,
+            "validation_timestamp": time.time()
+        }
+        
+        return credit_assessment
+        
+    except Exception as e:
+        logger.error(f"Error in credit scoring: {e}")
+        raise HTTPException(status_code=500, detail="Credit scoring failed")
+    finally:
+        # Log request for security analytics
+        processing_time = time.time() - start_time
+        # Note: Response object not available here, would need middleware for full logging
+
+@app.get("/api/v1/security/dashboard/{api_key}", tags=["Security"])
+async def get_security_dashboard(
+    api_key: str,
+    hours: int = 24,
+    security_context: SecurityContext = Depends(get_security_context)
+):
+    """
+    Security dashboard - analytics and monitoring
+    """
+    try:
+        # Verify user can access this API key's data
+        if security_context.api_key_id != api_key and security_context.tier != "enterprise":
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Get comprehensive security analytics
+        usage_stats = web3_security.api_manager.get_usage_stats(api_key)
+        threat_summary = web3_security.threat_detector.get_threat_summary(api_key, hours)
+        rate_stats = web3_security.rate_limiter.get_rate_limit_stats(api_key, RateLimitType.PER_API_KEY)
+        
+        return {
+            "api_key": api_key[:20] + "...",  # Masked for security
+            "tier": security_context.tier,
+            "usage_statistics": usage_stats,
+            "threat_analytics": threat_summary,
+            "rate_limit_status": rate_stats,
+            "security_score": 10.0 - security_context.threat_score,  # Inverted for user-friendly display
+            "dashboard_period_hours": hours,
+            "generated_at": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting security dashboard: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get security dashboard")
+
+@app.get("/api/v1/security/health", tags=["Security"])
+async def security_health_check():
+    """
+    Security system health check
+    """
+    try:
+        # Check Redis connectivity
+        redis_status = "connected" if web3_security.api_manager.redis.ping() else "disconnected"
+        
+        # Get system statistics
+        total_keys = len(web3_security.api_manager.redis.keys("api_key:*"))
+        total_threats = len(web3_security.threat_detector.redis.keys("threat:*"))
+        
+        return {
+            "status": "healthy",
+            "redis_status": redis_status,
+            "total_api_keys": total_keys,
+            "total_threats_24h": total_threats,
+            "firewall_version": "1.0.0",
+            "uptime": "operational",
+            "last_check": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Security health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "last_check": time.time()
+        }
+
+@app.post("/api/v1/credit/score", tags=["Credit Scoring"])
+async def get_credit_score(
+    wallet_address: str,
+    security_context: SecurityContext = Depends(get_security_context)
+):
+    """
+    AI-powered credit scoring endpoint with Web3 Security
+    Uses trained ML model for accurate scoring
+    """
+    if not wallet_address:
+        raise HTTPException(status_code=400, detail="Wallet address is required")
+    
+    # Security validation for credit scoring request
+    start_time = time.time()
+    
+    try:
+        # Use the AI credit scoring service
+        credit_assessment = await credit_scoring_service.analyze_wallet_and_score(wallet_address)
+        
+        # Add security metadata
+        credit_assessment["security_context"] = {
+            "api_key_tier": security_context.tier,
+            "threat_score": security_context.threat_score,
+            "validation_timestamp": time.time()
+        }
+        
+        return credit_assessment
+        
+    except Exception as e:
+        logger.error(f"Error in credit scoring: {e}")
+        raise HTTPException(status_code=500, detail="Credit scoring failed")
+    finally:
+        # Log request for security analytics
+        processing_time = time.time() - start_time
+        # Note: Response object not available here, would need middleware for full logging
+
+
+@app.get("/marketplace/stats", tags=["Marketplace"])
+async def get_marketplace_stats():
+    """Get marketplace statistics"""
     return {
-        "wallet_address": wallet_address,
-        "credit_score": 750,  # Mock score
-        "on_chain_score": 65.5,
-        "off_chain_score": 84.5,
-        "risk_level": "medium",
-        "max_loan_amount": 50000,
-        "recommended_interest_rate": 8.5,
-        "assessment_timestamp": "2025-09-23T14:30:00Z"
+        "total_startups": 12,
+        "total_investors": 8,
+        "total_funding": 2500000,
+        "active_deals": 5,
+        "success_rate": 85.5,
+        "avg_funding_time": "7.2 days",
+        "timestamp": "2025-09-28T02:00:00Z"
     }
 
 
-# Temporary loan application endpoint
-@app.post("/api/v1/loans/apply", tags=["Loans"])
-async def apply_for_loan(
-    wallet_address: str,
-    requested_amount: int,
-    loan_term_months: int = 12
-):
-    """
-    Temporary loan application endpoint
-    TODO: Move to proper loans router with full implementation
-    """
-    if not wallet_address or requested_amount <= 0:
-        raise HTTPException(
-            status_code=400, 
-            detail="Valid wallet address and loan amount required"
-        )
-    
-    # Mock response for now
+@app.get("/user/login", tags=["Authentication"])
+async def user_login(wallet: str, type: str):
+    """User login endpoint"""
     return {
-        "application_id": "loan_12345",
-        "wallet_address": wallet_address,
-        "requested_amount": requested_amount,
-        "approved_amount": min(requested_amount, 50000),  # Mock approval logic
-        "interest_rate": 8.5,
-        "loan_term_months": loan_term_months,
-        "status": "approved" if requested_amount <= 50000 else "pending_review",
-        "smart_contract_id": "123456789",  # Mock contract ID
-        "application_timestamp": "2025-09-23T14:30:00Z"
+        "success": True,
+        "user_id": f"{type}_12345",
+        "wallet_address": wallet,
+        "user_type": type,
+        "login_timestamp": "2025-09-28T02:00:00Z"
     }
 
 
@@ -184,7 +418,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=8004,
         reload=True,
         log_level="info"
     )

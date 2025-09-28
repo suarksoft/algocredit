@@ -1,317 +1,343 @@
 """
-AI Credit Scoring Service for AlgoCredit
-Combines on-chain and off-chain data to generate credit scores
+AlgoCredit Credit Scoring Service
+AI-powered credit scoring based on Algorand wallet analysis
 """
 
+import os
+import sys
+from typing import Dict, List, Optional
+from datetime import datetime
+import json
 import numpy as np
-import pandas as pd
-from typing import Dict, Optional, Tuple
+
+# Add parent directory to path to import train_model
+sys.path.append('/Users/ahmetbugrakurnaz/Desktop/algorand/algocredit-backend')
+from train_model import AlgoCreditAI
+
+"""
+AlgoCredit Credit Scoring Service
+AI-powered credit scoring based on Algorand wallet analysis
+"""
+
+import os
+import sys
+from typing import Dict, List, Optional
 from datetime import datetime
 import json
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+# Add parent directory to path to import train_model
+sys.path.append('/Users/ahmetbugrakurnaz/Desktop/algorand/algocredit-backend')
+
+try:
+    from train_model import AlgoCreditAI
+    AI_MODEL_AVAILABLE = True
+except ImportError:
+    print("⚠️ AI model not available, using fallback scoring")
+    AI_MODEL_AVAILABLE = False
 
 from .algorand_service import algorand_service
 
 
 class CreditScoringService:
-    """AI-powered credit scoring service"""
+    """Service for AI-powered credit scoring"""
     
     def __init__(self):
         """Initialize the credit scoring service"""
-        self.scaler = StandardScaler()
-        self.model = RandomForestRegressor(
-            n_estimators=100,
-            max_depth=10,
-            random_state=42,
-            min_samples_split=5,
-            min_samples_leaf=2
-        )
-        
-        # Model weights for different components
-        self.weights = {
-            "on_chain": 0.6,      # 60% weight for blockchain data
-            "off_chain": 0.4      # 40% weight for business data
-        }
-        
-        # Initialize with dummy training data
-        self._initialize_model()
+        self.ai_model = None
+        self.model_loaded = False
+        if AI_MODEL_AVAILABLE:
+            self.load_model()
     
-    def _initialize_model(self):
-        """Initialize model with synthetic training data for MVP"""
-        # Generate synthetic training data
-        np.random.seed(42)
-        n_samples = 1000
-        
-        # Features: [account_age, transaction_count, balance, volume, assets, apps, business_score]
-        X = np.random.rand(n_samples, 7)
-        
-        # Normalize features to realistic ranges
-        X[:, 0] = X[:, 0] * 365 + 30        # account_age_days: 30-395
-        X[:, 1] = X[:, 1] * 1000 + 10       # transaction_count: 10-1010
-        X[:, 2] = X[:, 2] * 1000000 + 100000 # balance: 100K-1.1M microAlgos
-        X[:, 3] = X[:, 3] * 10000000        # volume: 0-10M microAlgos
-        X[:, 4] = X[:, 4] * 10               # unique_assets: 0-10
-        X[:, 5] = X[:, 5] * 5                # app_interactions: 0-5
-        X[:, 6] = X[:, 6] * 100              # business_score: 0-100
-        
-        # Generate target scores (300-850 range)
-        # Higher values in features should correlate with higher scores
-        y = (
-            (X[:, 0] / 365) * 100 +          # Account age contribution
-            (X[:, 1] / 1000) * 150 +         # Transaction count contribution
-            (X[:, 2] / 1000000) * 100 +      # Balance contribution
-            (X[:, 3] / 10000000) * 100 +     # Volume contribution
-            (X[:, 4] / 10) * 50 +            # Assets contribution
-            (X[:, 5] / 5) * 50 +             # Apps contribution
-            (X[:, 6] / 100) * 200 +          # Business contribution
-            np.random.normal(0, 50, n_samples)  # Add some noise
-        )
-        
-        # Normalize to 300-850 range
-        y = np.clip(300 + (y / np.max(y)) * 550, 300, 850)
-        
-        # Train the model
-        X_scaled = self.scaler.fit_transform(X)
-        self.model.fit(X_scaled, y)
-        
-        print("✅ Credit scoring model initialized with synthetic data")
-    
-    async def analyze_credit_score(self, wallet_address: str, business_data: Optional[Dict] = None) -> Dict:
-        """
-        Generate comprehensive credit score analysis
-        
-        Args:
-            wallet_address: Algorand wallet address
-            business_data: Optional business metrics data
+    def load_model(self) -> bool:
+        """Load the trained AI model"""
+        if not AI_MODEL_AVAILABLE:
+            return False
             
-        Returns:
-            Dictionary containing credit score and analysis
-        """
         try:
-            # Get on-chain analysis
-            on_chain_data = await algorand_service.analyze_wallet_behavior(wallet_address)
+            self.ai_model = AlgoCreditAI()
+            import os
+            current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            model_path = os.path.join(current_dir, 'models', 'algocredit_ai_model.pkl')
             
-            # Calculate on-chain score
-            on_chain_score = self._calculate_on_chain_score(on_chain_data)
+            if os.path.exists(model_path):
+                self.ai_model.load_model(model_path)
+                self.model_loaded = True
+                print("✅ AI model loaded successfully")
+                return True
+            else:
+                print(f"⚠️ Model file not found at {model_path}")
+                return False
+        except Exception as e:
+            print(f"❌ Error loading AI model: {e}")
+            return False
+    
+    async def analyze_wallet_and_score(self, wallet_address: str) -> Dict:
+        """Analyze wallet and generate comprehensive credit score"""
+        try:
+            # Step 1: Get wallet analysis from Algorand service
+            print(f"🔍 Analyzing wallet: {wallet_address}")
+            wallet_analysis = await algorand_service.analyze_wallet_behavior(wallet_address)
             
-            # Calculate off-chain score
-            off_chain_score = self._calculate_off_chain_score(business_data or {})
+            if not wallet_analysis or not wallet_analysis.get('wallet_address'):
+                return self._default_credit_assessment(wallet_address, "Unable to analyze wallet")
             
-            # Combine scores
-            combined_score = (
-                on_chain_score * self.weights["on_chain"] + 
-                off_chain_score * self.weights["off_chain"]
-            )
+            # Step 2: AI-powered credit scoring
+            if self.model_loaded and self.ai_model:
+                ai_prediction = self.ai_model.predict_credit_score(wallet_analysis)
+                credit_score = ai_prediction['credit_score']
+                confidence = ai_prediction['confidence']
+                risk_level = ai_prediction['risk_level']
+                insights = ai_prediction['insights']
+                scoring_method = "AI Model"
+            else:
+                # Fallback to heuristic scoring
+                credit_score, confidence, risk_level, insights = self._heuristic_scoring(wallet_analysis)
+                scoring_method = "Heuristic"
             
-            # Use ML model for final prediction
-            features = self._prepare_features(on_chain_data, business_data or {})
-            ml_score = self._predict_with_model(features)
+            # Step 3: Calculate additional metrics
+            max_loan_amount = self._calculate_max_loan_amount(credit_score, wallet_analysis)
+            recommended_interest_rate = self._calculate_interest_rate(credit_score, risk_level)
             
-            # Final score is weighted average of rule-based and ML scores
-            final_score = int((combined_score * 0.7) + (ml_score * 0.3))
-            final_score = max(300, min(850, final_score))  # Ensure valid range
-            
-            # Determine risk level
-            risk_level = self._determine_risk_level(final_score)
-            
-            # Calculate loan parameters
-            max_loan_amount, interest_rate = self._calculate_loan_parameters(final_score, on_chain_data)
-            
-            return {
+            # Step 4: Generate detailed assessment
+            assessment = {
                 "wallet_address": wallet_address,
-                "credit_score": final_score,
-                "on_chain_score": round(on_chain_score, 2),
-                "off_chain_score": round(off_chain_score, 2),
+                "credit_score": credit_score,
+                "confidence": confidence,
                 "risk_level": risk_level,
                 "max_loan_amount": max_loan_amount,
-                "recommended_interest_rate": round(interest_rate, 2),
-                "score_breakdown": {
-                    "account_age_contribution": self._score_account_age(on_chain_data.get("account_age_days", 1)),
-                    "transaction_activity": self._score_transaction_activity(on_chain_data),
-                    "balance_stability": on_chain_data.get("balance_stability_score", 0),
-                    "asset_diversity": on_chain_data.get("asset_diversity_score", 0),
-                    "dapp_usage": on_chain_data.get("dapp_usage_score", 0),
-                    "business_metrics": off_chain_score
+                "recommended_interest_rate": recommended_interest_rate,
+                "insights": insights,
+                "assessment_breakdown": {
+                    "on_chain_score": self._calculate_on_chain_score(wallet_analysis),
+                    "stability_score": wallet_analysis.get('balance_stability_score', 0),
+                    "activity_score": wallet_analysis.get('transaction_frequency_score', 0),
+                    "diversity_score": wallet_analysis.get('asset_diversity_score', 0),
+                    "defi_score": wallet_analysis.get('dapp_usage_score', 0)
                 },
-                "analysis_timestamp": datetime.now().isoformat(),
-                "model_version": "1.0.0"
+                "wallet_metrics": {
+                    "account_age_days": wallet_analysis.get('account_age_days', 0),
+                    "total_transactions": wallet_analysis.get('total_transactions', 0),
+                    "current_balance_algo": wallet_analysis.get('current_balance', 0) / 1_000_000,
+                    "total_volume_algo": wallet_analysis.get('total_volume', 0) / 1_000_000
+                },
+                "model_info": {
+                    "model_version": "AlgoCredit AI v1.0",
+                    "scoring_method": scoring_method,
+                    "ai_enabled": self.model_loaded,
+                    "assessment_timestamp": datetime.now().isoformat()
+                }
             }
             
+            print(f"✅ Credit assessment completed for {wallet_address}")
+            print(f"   Score: {credit_score}, Risk: {risk_level}, Confidence: {confidence}%")
+            
+            return assessment
+            
         except Exception as e:
-            print(f"Error analyzing credit score: {e}")
-            return self._default_credit_analysis(wallet_address)
+            print(f"❌ Error in credit scoring: {e}")
+            return self._default_credit_assessment(wallet_address, f"Analysis error: {str(e)}")
     
-    def _calculate_on_chain_score(self, wallet_data: Dict) -> float:
-        """Calculate on-chain credit score component"""
-        scores = []
+    def _heuristic_scoring(self, wallet_analysis: Dict) -> tuple:
+        """Fallback heuristic scoring when AI model is not available"""
         
-        # Account age score (0-100)
-        age_score = self._score_account_age(wallet_data.get("account_age_days", 1))
-        scores.append(age_score * 0.25)  # 25% weight
+        # Extract key metrics
+        age_days = wallet_analysis.get('account_age_days', 0)
+        transactions = wallet_analysis.get('total_transactions', 0)
+        balance = wallet_analysis.get('current_balance', 0)
+        stability = wallet_analysis.get('balance_stability_score', 0)
+        activity = wallet_analysis.get('transaction_frequency_score', 0)
         
-        # Transaction activity score (0-100)
-        activity_score = self._score_transaction_activity(wallet_data)
-        scores.append(activity_score * 0.25)  # 25% weight
+        # Base score calculation
+        base_score = 500  # Middle of 300-850 range
         
-        # Balance stability (0-100)
-        stability_score = wallet_data.get("balance_stability_score", 0)
-        scores.append(stability_score * 0.2)  # 20% weight
+        # Age factor (up to +100 points)
+        if age_days > 730:  # 2+ years
+            base_score += 80
+        elif age_days > 365:  # 1+ year
+            base_score += 60
+        elif age_days > 90:  # 3+ months
+            base_score += 30
         
-        # Asset diversity (0-100)
-        diversity_score = wallet_data.get("asset_diversity_score", 0)
-        scores.append(diversity_score * 0.15)  # 15% weight
+        # Transaction history factor (up to +80 points)
+        if transactions > 100:
+            base_score += 60
+        elif transactions > 50:
+            base_score += 40
+        elif transactions > 10:
+            base_score += 20
         
-        # DApp usage (0-100)
-        dapp_score = wallet_data.get("dapp_usage_score", 0)
-        scores.append(dapp_score * 0.15)  # 15% weight
+        # Balance factor (up to +70 points)
+        balance_algo = balance / 1_000_000
+        if balance_algo > 10000:
+            base_score += 60
+        elif balance_algo > 1000:
+            base_score += 40
+        elif balance_algo > 100:
+            base_score += 20
         
-        total_score = sum(scores)
+        # Stability and activity factors
+        base_score += stability * 0.5  # Up to +50 points
+        base_score += activity * 0.3   # Up to +30 points
         
-        # Convert to 300-850 scale (on-chain portion)
-        return 300 + (total_score / 100) * 350
-    
-    def _calculate_off_chain_score(self, business_data: Dict) -> float:
-        """Calculate off-chain credit score component"""
-        if not business_data:
-            return 500  # Neutral score for missing data
+        # Ensure valid range
+        credit_score = max(300, min(850, int(base_score)))
         
-        scores = []
+        # Calculate confidence
+        confidence = 75.0  # Default confidence for heuristic
+        if age_days < 30 or transactions < 5:
+            confidence = 60.0
+        elif age_days > 365 and transactions > 50:
+            confidence = 85.0
         
-        # Startup age
-        startup_age_months = business_data.get("startup_age_months", 0)
-        age_score = min(100, (startup_age_months / 24) * 100)  # 2 years = 100 points
-        scores.append(age_score * 0.2)
-        
-        # Team experience
-        team_experience = business_data.get("team_experience_years", 0)
-        exp_score = min(100, (team_experience / 10) * 100)  # 10 years = 100 points
-        scores.append(exp_score * 0.25)
-        
-        # Revenue traction
-        monthly_revenue = business_data.get("monthly_revenue", 0)
-        revenue_score = min(100, (monthly_revenue / 50000) * 100)  # $50K = 100 points
-        scores.append(revenue_score * 0.25)
-        
-        # User growth
-        user_growth_rate = business_data.get("user_growth_rate", 0)
-        growth_score = min(100, user_growth_rate * 10)  # 10% growth = 100 points
-        scores.append(growth_score * 0.15)
-        
-        # Market size
-        market_size = business_data.get("market_size_score", 50)  # Default neutral
-        scores.append(market_size * 0.15)
-        
-        total_score = sum(scores)
-        
-        # Convert to 300-850 scale (off-chain portion)
-        return 300 + (total_score / 100) * 350
-    
-    def _score_account_age(self, age_days: int) -> float:
-        """Score account age (newer accounts have lower scores)"""
-        if age_days < 30:
-            return 20
-        elif age_days < 90:
-            return 40
-        elif age_days < 180:
-            return 60
-        elif age_days < 365:
-            return 80
+        # Determine risk level
+        if credit_score >= 750:
+            risk_level = 'low'
+        elif credit_score >= 650:
+            risk_level = 'medium'
+        elif credit_score >= 550:
+            risk_level = 'medium-high'
         else:
-            return 100
+            risk_level = 'high'
+        
+        # Generate insights
+        insights = []
+        if age_days > 365:
+            insights.append("✅ Established account history")
+        if transactions > 50:
+            insights.append("✅ Good transaction activity")
+        if balance_algo > 1000:
+            insights.append("💰 Strong balance position")
+        if credit_score < 600:
+            insights.append("⚠️ Limited credit history")
+        
+        return credit_score, confidence, risk_level, insights
     
-    def _score_transaction_activity(self, wallet_data: Dict) -> float:
-        """Score transaction activity"""
-        tx_count = wallet_data.get("total_transactions", 0)
-        volume = wallet_data.get("total_volume", 0)
+    def _calculate_on_chain_score(self, wallet_analysis: Dict) -> float:
+        """Calculate on-chain behavior score"""
         
-        # Count score (0-50)
-        count_score = min(50, (tx_count / 100) * 50)
-        
-        # Volume score (0-50)
-        volume_score = min(50, (volume / 10000000) * 50)  # 10 ALGO = 50 points
-        
-        return count_score + volume_score
-    
-    def _prepare_features(self, on_chain_data: Dict, business_data: Dict) -> np.ndarray:
-        """Prepare features for ML model"""
-        features = [
-            on_chain_data.get("account_age_days", 1),
-            on_chain_data.get("total_transactions", 0),
-            on_chain_data.get("current_balance", 0),
-            on_chain_data.get("total_volume", 0),
-            len(on_chain_data.get("unique_counterparties", [])) if isinstance(on_chain_data.get("unique_counterparties"), list) else on_chain_data.get("unique_counterparties", 0),
-            on_chain_data.get("dapp_usage_score", 0) / 10,  # Normalize
-            self._calculate_off_chain_score(business_data) / 10  # Normalize
+        metrics = [
+            wallet_analysis.get('balance_stability_score', 0),
+            wallet_analysis.get('transaction_frequency_score', 0),
+            wallet_analysis.get('asset_diversity_score', 0),
+            wallet_analysis.get('dapp_usage_score', 0)
         ]
         
-        return np.array(features).reshape(1, -1)
+        # Weighted average
+        weights = [0.3, 0.25, 0.25, 0.2]
+        on_chain_score = sum(metric * weight for metric, weight in zip(metrics, weights))
+        
+        return round(on_chain_score, 2)
     
-    def _predict_with_model(self, features: np.ndarray) -> float:
-        """Predict credit score using ML model"""
-        try:
-            features_scaled = self.scaler.transform(features)
-            prediction = self.model.predict(features_scaled)[0]
-            return max(300, min(850, prediction))
-        except Exception as e:
-            print(f"Error in ML prediction: {e}")
-            return 650  # Default score
-    
-    def _determine_risk_level(self, score: int) -> str:
-        """Determine risk level based on credit score"""
-        if score >= 750:
-            return "low"
-        elif score >= 650:
-            return "medium"
-        elif score >= 550:
-            return "high"
-        else:
-            return "very_high"
-    
-    def _calculate_loan_parameters(self, credit_score: int, wallet_data: Dict) -> Tuple[int, float]:
-        """Calculate maximum loan amount and interest rate"""
+    def _calculate_max_loan_amount(self, credit_score: int, wallet_analysis: Dict) -> int:
+        """Calculate maximum loan amount based on credit score and wallet metrics"""
+        
         # Base loan amount based on credit score
-        score_factor = (credit_score - 300) / 550  # 0-1 range
-        base_amount = int(score_factor * 100000 * 1000000)  # Up to 100K ALGO in microAlgos
+        if credit_score >= 800:
+            base_amount = 100000  # 100k ALGO
+        elif credit_score >= 750:
+            base_amount = 75000
+        elif credit_score >= 700:
+            base_amount = 50000
+        elif credit_score >= 650:
+            base_amount = 25000
+        elif credit_score >= 600:
+            base_amount = 15000
+        elif credit_score >= 550:
+            base_amount = 10000
+        else:
+            base_amount = 5000
         
-        # Adjust based on wallet balance
-        balance = wallet_data.get("current_balance", 0)
-        balance_factor = min(1.0, balance / 1000000)  # 1 ALGO = 1.0 factor
+        # Adjust based on wallet balance (collateral factor)
+        current_balance = wallet_analysis.get('current_balance', 0) / 1_000_000  # Convert to ALGO
+        balance_factor = min(1.0, current_balance / 10000)  # Cap at 10k ALGO
         
-        max_loan = int(base_amount * (0.5 + balance_factor * 0.5))
-        max_loan = max(1000000, min(max_loan, 100000000000))  # 1 ALGO to 100K ALGO
+        # Adjust based on transaction history
+        transactions = wallet_analysis.get('total_transactions', 0)
+        history_factor = min(1.0, transactions / 100)  # Cap at 100 transactions
         
-        # Interest rate calculation (inverse to credit score)
-        base_rate = 15.0  # 15% base rate
-        score_discount = ((credit_score - 300) / 550) * 10  # Up to 10% discount
-        interest_rate = max(3.0, base_rate - score_discount)
+        # Final calculation
+        max_loan = int(base_amount * (0.6 + 0.3 * balance_factor + 0.1 * history_factor))
         
-        return max_loan, interest_rate
+        return max_loan
     
-    def _default_credit_analysis(self, wallet_address: str) -> Dict:
-        """Return default credit analysis for errors"""
+    def _calculate_interest_rate(self, credit_score: int, risk_level: str) -> float:
+        """Calculate recommended interest rate based on credit score"""
+        
+        # Base rates by credit score
+        if credit_score >= 800:
+            base_rate = 5.0
+        elif credit_score >= 750:
+            base_rate = 6.5
+        elif credit_score >= 700:
+            base_rate = 8.0
+        elif credit_score >= 650:
+            base_rate = 10.0
+        elif credit_score >= 600:
+            base_rate = 12.5
+        elif credit_score >= 550:
+            base_rate = 15.0
+        else:
+            base_rate = 18.0
+        
+        # Risk adjustment
+        risk_adjustments = {
+            'low': -0.5,
+            'medium': 0.0,
+            'medium-high': 1.0,
+            'high': 2.0
+        }
+        
+        final_rate = base_rate + risk_adjustments.get(risk_level, 0)
+        
+        return round(final_rate, 1)
+    
+    def _default_credit_assessment(self, wallet_address: str, reason: str) -> Dict:
+        """Return default assessment when analysis fails"""
         return {
             "wallet_address": wallet_address,
-            "credit_score": 500,
-            "on_chain_score": 50.0,
-            "off_chain_score": 50.0,
+            "credit_score": 500,  # Neutral score
+            "confidence": 30.0,   # Low confidence
             "risk_level": "high",
-            "max_loan_amount": 1000000,  # 1 ALGO
-            "recommended_interest_rate": 12.0,
-            "score_breakdown": {
-                "account_age_contribution": 0,
-                "transaction_activity": 0,
-                "balance_stability": 0,
-                "asset_diversity": 0,
-                "dapp_usage": 0,
-                "business_metrics": 50
+            "max_loan_amount": 1000,
+            "recommended_interest_rate": 20.0,
+            "insights": ["⚠️ Unable to analyze wallet", f"Reason: {reason}"],
+            "assessment_breakdown": {
+                "on_chain_score": 0,
+                "stability_score": 0,
+                "activity_score": 0,
+                "diversity_score": 0,
+                "defi_score": 0
             },
-            "analysis_timestamp": datetime.now().isoformat(),
-            "model_version": "1.0.0",
-            "error": "Failed to analyze wallet"
+            "wallet_metrics": {
+                "account_age_days": 0,
+                "total_transactions": 0,
+                "current_balance_algo": 0,
+                "total_volume_algo": 0
+            },
+            "model_info": {
+                "model_version": "Fallback v1.0",
+                "scoring_method": "Error Fallback",
+                "ai_enabled": False,
+                "assessment_timestamp": datetime.now().isoformat(),
+                "error": reason
+            }
         }
+    
+    def get_model_info(self) -> Dict:
+        """Get information about the loaded model"""
+        if self.model_loaded and self.ai_model:
+            return {
+                "model_loaded": True,
+                "model_metadata": getattr(self.ai_model, 'model_metadata', {}),
+                "features_count": len(getattr(self.ai_model, 'feature_names', [])) + 6,  # +6 engineered features
+                "model_type": "Random Forest Regressor"
+            }
+        else:
+            return {
+                "model_loaded": False,
+                "fallback_mode": "Heuristic scoring",
+                "recommendation": "Train and load AI model for better accuracy"
+            }
 
 
 # Global instance

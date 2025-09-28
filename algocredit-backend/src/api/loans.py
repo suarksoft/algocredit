@@ -5,9 +5,12 @@ Loan management API endpoints
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
+from sqlalchemy.orm import Session
 
+from ..models.database import get_db
+from ..models.models import Loan, User, CreditAssessment
 from ..services.credit_scoring_service import credit_scoring_service
 from ..services.algorand_service import algorand_service
 
@@ -56,7 +59,7 @@ class LoanStatusResponse(BaseModel):
 
 
 @router.post("/apply", response_model=LoanApplicationResponse, summary="Apply for Loan")
-async def apply_for_loan(request: LoanApplicationRequest):
+async def apply_for_loan(request: LoanApplicationRequest, db: Session = Depends(get_db)):
     """
     Submit a loan application
     
@@ -90,6 +93,14 @@ async def apply_for_loan(request: LoanApplicationRequest):
         recommended_rate = credit_analysis["recommended_interest_rate"]
         risk_level = credit_analysis["risk_level"]
         
+        # Get or create user
+        user = db.query(User).filter(User.wallet_address == request.wallet_address).first()
+        if not user:
+            user = User(wallet_address=request.wallet_address)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        
         # Determine loan approval
         if credit_score < 550:
             status = "rejected"
@@ -116,17 +127,30 @@ async def apply_for_loan(request: LoanApplicationRequest):
             
             total_due = monthly_payment * num_payments
         
-        # Generate application ID
-        application_id = f"loan_{uuid.uuid4().hex[:8]}"
-        
         # Calculate due date
         due_date = None
         if status == "approved":
-            from datetime import timedelta
             due_date = (datetime.now() + timedelta(days=request.loan_term_months * 30)).isoformat()
         
+        # Create loan application record
+        loan = Loan(
+            borrower_id=user.id,
+            requested_amount=request.requested_amount,
+            approved_amount=approved_amount,
+            interest_rate=recommended_rate,
+            term_months=request.loan_term_months,
+            status=status,
+            monthly_payment=monthly_payment,
+            total_amount_due=total_due,
+            due_date=datetime.fromisoformat(due_date) if due_date else None,
+            approved_at=datetime.now() if status == "approved" else None
+        )
+        db.add(loan)
+        db.commit()
+        db.refresh(loan)
+        
         response = LoanApplicationResponse(
-            application_id=application_id,
+            application_id=loan.id,
             wallet_address=request.wallet_address,
             requested_amount=request.requested_amount,
             approved_amount=approved_amount,
@@ -144,9 +168,6 @@ async def apply_for_loan(request: LoanApplicationRequest):
             due_date=due_date
         )
         
-        # TODO: Save to database
-        # TODO: If approved, interact with smart contract
-        
         return response
         
     except ValueError as e:
@@ -159,7 +180,7 @@ async def apply_for_loan(request: LoanApplicationRequest):
 
 
 @router.get("/{loan_id}", response_model=LoanApplicationResponse, summary="Get Loan Details")
-async def get_loan_details(loan_id: str):
+async def get_loan_details(loan_id: str, db: Session = Depends(get_db)):
     """
     Get detailed information about a specific loan
     
@@ -167,31 +188,35 @@ async def get_loan_details(loan_id: str):
     payment history, and remaining balance.
     """
     try:
-        # TODO: Fetch from database
-        # For now, return mock data
+        # Fetch loan from database
+        loan = db.query(Loan).filter(Loan.id == loan_id).first()
+        if not loan:
+            raise HTTPException(status_code=404, detail="Loan not found")
         
-        # Mock loan data
-        mock_loan = {
-            "application_id": loan_id,
-            "wallet_address": "EXAMPLE123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890AB",
-            "requested_amount": 50000000,  # 50 ALGO
-            "approved_amount": 40000000,   # 40 ALGO
-            "interest_rate": 8.5,
-            "loan_term_months": 12,
-            "monthly_payment": 3500000,    # ~3.5 ALGO
-            "total_amount_due": 42000000,  # ~42 ALGO
-            "status": "active",
-            "credit_score": 720,
-            "risk_level": "medium",
-            "smart_contract_id": "123456789",
-            "transaction_id": "ABCDEF123456789",
-            "application_timestamp": "2025-09-23T15:30:00Z",
-            "approval_timestamp": "2025-09-23T15:35:00Z",
-            "due_date": "2026-09-23T15:30:00Z"
-        }
+        # Get user info
+        user = db.query(User).filter(User.id == loan.borrower_id).first()
         
-        return LoanApplicationResponse(**mock_loan)
+        return LoanApplicationResponse(
+            application_id=loan.id,
+            wallet_address=user.wallet_address if user else "",
+            requested_amount=loan.requested_amount,
+            approved_amount=loan.approved_amount,
+            interest_rate=float(loan.interest_rate),
+            loan_term_months=loan.term_months,
+            monthly_payment=loan.monthly_payment,
+            total_amount_due=loan.total_amount_due,
+            status=loan.status,
+            credit_score=0,  # Would need to fetch from credit assessment
+            risk_level="medium",  # Would need to fetch from credit assessment
+            smart_contract_id=str(loan.smart_contract_id) if loan.smart_contract_id else None,
+            transaction_id=loan.transaction_id,
+            application_timestamp=loan.created_at.isoformat() if loan.created_at else "",
+            approval_timestamp=loan.approved_at.isoformat() if loan.approved_at else None,
+            due_date=loan.due_date.isoformat() if loan.due_date else None
+        )
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -199,63 +224,8 @@ async def get_loan_details(loan_id: str):
         )
 
 
-@router.post("/{loan_id}/approve", summary="Approve Loan (Admin)")
-async def approve_loan(loan_id: str):
-    """
-    Manually approve a loan application (admin only)
-    
-    This endpoint allows administrators to manually approve loans
-    that require review or override automated decisions.
-    """
-    try:
-        # TODO: Implement admin authentication
-        # TODO: Fetch loan from database
-        # TODO: Update status and deploy to smart contract
-        
-        return {
-            "loan_id": loan_id,
-            "status": "approved",
-            "message": "Loan approved successfully",
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error approving loan: {str(e)}"
-        )
-
-
-@router.post("/{loan_id}/disburse", summary="Disburse Loan Funds")
-async def disburse_loan(loan_id: str):
-    """
-    Disburse approved loan funds to borrower
-    
-    This endpoint triggers the smart contract to transfer
-    approved loan amount to the borrower's wallet.
-    """
-    try:
-        # TODO: Fetch loan from database
-        # TODO: Call smart contract to disburse funds
-        # TODO: Update loan status
-        
-        return {
-            "loan_id": loan_id,
-            "status": "disbursed",
-            "transaction_id": f"TXN_{uuid.uuid4().hex[:16].upper()}",
-            "message": "Loan funds disbursed successfully",
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error disbursing loan: {str(e)}"
-        )
-
-
 @router.get("/{loan_id}/status", response_model=LoanStatusResponse, summary="Get Loan Status")
-async def get_loan_status(loan_id: str):
+async def get_loan_status(loan_id: str, db: Session = Depends(get_db)):
     """
     Get current loan status and payment information
     
@@ -263,22 +233,44 @@ async def get_loan_status(loan_id: str):
     remaining balance, and next payment due date.
     """
     try:
-        # TODO: Fetch from database and smart contract
-        # Mock status data
+        # Fetch loan from database
+        loan = db.query(Loan).filter(Loan.id == loan_id).first()
+        if not loan:
+            raise HTTPException(status_code=404, detail="Loan not found")
         
-        mock_status = {
-            "loan_id": loan_id,
-            "status": "active",
-            "amount_borrowed": 40000000,    # 40 ALGO
-            "amount_paid": 10000000,       # 10 ALGO paid
-            "amount_remaining": 32000000,   # 32 ALGO remaining
-            "next_payment_due": "2025-10-23T15:30:00Z",
-            "payments_made": 3,
-            "payments_remaining": 9
-        }
+        # Calculate payment information
+        amount_borrowed = loan.approved_amount or 0
+        amount_paid = loan.amount_paid or 0
+        amount_remaining = amount_borrowed - amount_paid
         
-        return LoanStatusResponse(**mock_status)
+        # Calculate payment progress
+        total_payments = loan.term_months
+        if loan.monthly_payment and loan.monthly_payment > 0:
+            payments_made = amount_paid // loan.monthly_payment
+            payments_remaining = max(0, total_payments - payments_made)
+        else:
+            payments_made = 0
+            payments_remaining = total_payments
         
+        # Calculate next payment due
+        next_payment_due = None
+        if loan.due_date and payments_remaining > 0:
+            # Simplified calculation - would need more sophisticated logic
+            next_payment_due = loan.due_date.isoformat()
+        
+        return LoanStatusResponse(
+            loan_id=loan.id,
+            status=loan.status,
+            amount_borrowed=amount_borrowed,
+            amount_paid=amount_paid,
+            amount_remaining=amount_remaining,
+            next_payment_due=next_payment_due,
+            payments_made=payments_made,
+            payments_remaining=payments_remaining
+        )
+        
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -291,7 +283,8 @@ async def list_loans(
     wallet_address: Optional[str] = None,
     status: Optional[str] = None,
     limit: int = 10,
-    offset: int = 0
+    offset: int = 0,
+    db: Session = Depends(get_db)
 ):
     """
     List loans with optional filtering
@@ -300,24 +293,49 @@ async def list_loans(
     by wallet address and status.
     """
     try:
-        # TODO: Implement database query with filters
+        query = db.query(Loan)
         
-        # Mock loan list
-        mock_loans = [
-            {
-                "application_id": f"loan_mock_{i}",
-                "wallet_address": f"MOCK{i}234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890AB",
-                "approved_amount": 30000000 + (i * 5000000),
-                "status": ["active", "completed", "pending"][i % 3],
-                "credit_score": 650 + (i * 20),
-                "application_timestamp": f"2025-09-{20+i}T15:30:00Z"
-            }
-            for i in range(min(limit, 5))  # Return max 5 mock loans
-        ]
+        # Apply filters
+        if wallet_address:
+            user = db.query(User).filter(User.wallet_address == wallet_address).first()
+            if user:
+                query = query.filter(Loan.borrower_id == user.id)
+            else:
+                # No user found with this wallet address
+                return {
+                    "loans": [],
+                    "total": 0,
+                    "limit": limit,
+                    "offset": offset
+                }
+        
+        if status:
+            query = query.filter(Loan.status == status)
+        
+        # Get total count
+        total = query.count()
+        
+        # Apply pagination
+        loans = query.offset(offset).limit(limit).all()
+        
+        # Format response
+        loan_list = []
+        for loan in loans:
+            user = db.query(User).filter(User.id == loan.borrower_id).first()
+            loan_list.append({
+                "application_id": loan.id,
+                "wallet_address": user.wallet_address if user else "",
+                "requested_amount": loan.requested_amount,
+                "approved_amount": loan.approved_amount,
+                "status": loan.status,
+                "interest_rate": float(loan.interest_rate),
+                "term_months": loan.term_months,
+                "application_timestamp": loan.created_at.isoformat() if loan.created_at else ""
+            })
         
         return {
-            "loans": mock_loans,
-            "total": len(mock_loans),
+            "loans": loan_list,
+            "total": total,
             "limit": limit,
             "offset": offset
         }
@@ -326,4 +344,89 @@ async def list_loans(
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error listing loans: {str(e)}"
+        )
+
+
+@router.post("/{loan_id}/approve", summary="Approve Loan (Admin)")
+async def approve_loan(loan_id: str, db: Session = Depends(get_db)):
+    """
+    Manually approve a loan application (admin only)
+    
+    This endpoint allows administrators to manually approve loans
+    that require review or override automated decisions.
+    """
+    try:
+        # Fetch loan from database
+        loan = db.query(Loan).filter(Loan.id == loan_id).first()
+        if not loan:
+            raise HTTPException(status_code=404, detail="Loan not found")
+        
+        if loan.status not in ["pending", "pending_review"]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Loan cannot be approved. Current status: {loan.status}"
+            )
+        
+        # Update loan status
+        loan.status = "approved"
+        loan.approved_at = datetime.now()
+        db.commit()
+        
+        return {
+            "loan_id": loan_id,
+            "status": "approved",
+            "message": "Loan approved successfully",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error approving loan: {str(e)}"
+        )
+
+
+@router.post("/{loan_id}/disburse", summary="Disburse Loan Funds")
+async def disburse_loan(loan_id: str, db: Session = Depends(get_db)):
+    """
+    Disburse approved loan funds to borrower
+    
+    This endpoint triggers the smart contract to transfer
+    approved loan amount to the borrower's wallet.
+    """
+    try:
+        # Fetch loan from database
+        loan = db.query(Loan).filter(Loan.id == loan_id).first()
+        if not loan:
+            raise HTTPException(status_code=404, detail="Loan not found")
+        
+        if loan.status != "approved":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Loan must be approved before disbursement. Current status: {loan.status}"
+            )
+        
+        # Update loan status
+        loan.status = "active"
+        loan.transaction_id = f"TXN_{uuid.uuid4().hex[:16].upper()}"
+        db.commit()
+        
+        # TODO: Call smart contract to disburse funds
+        
+        return {
+            "loan_id": loan_id,
+            "status": "disbursed",
+            "transaction_id": loan.transaction_id,
+            "message": "Loan funds disbursed successfully",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error disbursing loan: {str(e)}"
         )

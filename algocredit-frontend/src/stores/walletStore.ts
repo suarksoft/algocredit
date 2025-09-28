@@ -44,9 +44,11 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   // Connect to Pera Wallet
   connectWallet: async () => {
     try {
+      console.log('🔵 Starting wallet connection...')
       set({ isConnecting: true, error: null })
 
       // Connect to Pera Wallet
+      console.log('🔵 Connecting to Pera Wallet...')
       const accounts = await peraWallet.connect()
       
       if (accounts.length === 0) {
@@ -54,21 +56,28 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       }
 
       const walletAddress = accounts[0]
+      console.log('✅ Wallet connected! Address:', walletAddress)
       
-      // Get account info
-      await get().getAccountInfo()
-      
+      // Set wallet immediately but with 0 balance initially
       set({
         isConnected: true,
         isConnecting: false,
         walletAddress,
+        balance: 0  // Will be updated by getAccountInfo
       })
 
+      // Get account info AFTER setting the wallet
+      console.log('🔵 Getting account info...')
+      setTimeout(async () => {
+        await get().getAccountInfo()
+      }, 100) // Small delay to ensure state is set
+      
       // Store in localStorage for persistence
       localStorage.setItem('algocredit_wallet_address', walletAddress)
+      console.log('✅ Wallet connection complete!')
       
     } catch (error: any) {
-      console.error('Wallet connection error:', error)
+      console.error('❌ Wallet connection error:', error)
       set({
         isConnecting: false,
         error: error.message || 'Failed to connect wallet',
@@ -99,7 +108,12 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   getAccountInfo: async () => {
     const { walletAddress } = get()
     
-    if (!walletAddress) return
+    if (!walletAddress) {
+      console.log('🔍 No wallet address to fetch account info')
+      return
+    }
+
+    console.log('🔍 Fetching account info for:', walletAddress)
 
     try {
       // Initialize Algorand client
@@ -109,16 +123,28 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         ''
       )
 
+      console.log('🔍 Making API request to TestNet...')
       // Get account info
       const accountInfo = await algodClient.accountInformation(walletAddress).do()
       
-      set({
-        accountInfo,
-        balance: Number(accountInfo.amount || 0),
+      console.log('✅ Account info received:', {
+        amount: accountInfo.amount,
+        balance_microAlgos: accountInfo.amount,
+        balance_ALGO: Number(accountInfo.amount || 0) / 1_000_000
       })
       
+      // Force update the state
+      const newBalance = Number(accountInfo.amount || 0)
+      set((state) => ({
+        ...state,
+        accountInfo,
+        balance: newBalance,
+      }))
+      
+      console.log('✅ Balance updated in store:', newBalance)
+      
     } catch (error: any) {
-      console.error('Error fetching account info:', error)
+      console.error('❌ Error fetching account info:', error)
       set({ error: 'Failed to fetch account information' })
     }
   },

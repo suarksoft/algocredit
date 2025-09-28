@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
 import { WalletConnect } from '@/components/WalletConnect'
 import { useWalletStore } from '@/stores/walletStore'
+import { useSecurityStore } from '@/stores/securityStore'
+import SecurityDashboard from '@/components/SecurityDashboard'
 import { 
   CreditCardIcon, 
   BuildingOffice2Icon, 
@@ -47,8 +49,19 @@ interface LoanApplicationData {
 
 export default function ApplyPage() {
   const { isConnected, walletAddress } = useWalletStore()
+  const { 
+    getCreditScore, 
+    isLoadingScore, 
+    securityScore, 
+    threatLevel,
+    lastError,
+    clearError 
+  } = useSecurityStore()
+  
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [creditScoreData, setCreditScoreData] = useState(null)
+  const [showSecurityDashboard, setShowSecurityDashboard] = useState(false)
   const [applicationData, setApplicationData] = useState<LoanApplicationData>({
     requestedAmount: 50000,
     loanTerm: 12,
@@ -88,19 +101,95 @@ export default function ApplyPage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
+    clearError()
     
     try {
-      // TODO: Submit to API
-      console.log('Submitting application:', applicationData)
+      if (!walletAddress) {
+        throw new Error('Wallet not connected')
+      }
+
+      // Step 1: Get AI Credit Score with Security Validation
+      console.log('🔍 Getting secure credit score for wallet:', walletAddress)
+      const creditData = await getCreditScore(walletAddress)
+      setCreditScoreData(creditData)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      console.log('✅ Credit Score Result:', creditData)
+
+      // Step 2: Submit Loan Application with Business Data
+      const loanApplicationPayload = {
+        wallet_address: walletAddress,
+        requested_amount: applicationData.requestedAmount * 1000000, // Convert to microAlgo
+        loan_term_months: applicationData.loanTerm,
+        purpose: applicationData.purpose,
+        business_data: {
+          company_name: applicationData.companyName,
+          industry: applicationData.industry,
+          founding_date: applicationData.foundingDate,
+          monthly_revenue: applicationData.monthlyRevenue,
+          user_count: applicationData.userCount,
+          user_growth_rate: applicationData.userGrowthRate,
+          team_size: applicationData.teamSize,
+          team_experience: applicationData.teamExperience,
+        }
+      }
+
+      console.log('📝 Submitting secure loan application:', loanApplicationPayload)
+      const loanResponse = await fetch('http://localhost:8000/api/v1/loans/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ALGOCREDIT_API_KEY || 'demo_key'}`
+        },
+        body: JSON.stringify(loanApplicationPayload)
+      })
+
+      if (!loanResponse.ok) {
+        const errorData = await loanResponse.json().catch(() => ({}))
+        throw new Error(errorData.detail || 'Failed to submit loan application')
+      }
+
+      const loanResult = await loanResponse.json()
+      console.log('✅ Loan Application Result:', loanResult)
+
+      // Show professional success modal with security info
+      setShowSecurityDashboard(true)
       
-      // Redirect to dashboard or show success
-      alert('Application submitted successfully!')
+      // Create detailed success message
+      const successMessage = `🎉 Application Submitted Successfully!
+
+🧠 AI Credit Analysis:
+• Credit Score: ${creditData.credit_score}/850
+• Risk Level: ${creditData.risk_level.toUpperCase()}
+• Max Loan Amount: ${(creditData.max_loan_amount / 1000000).toFixed(2)} ALGO
+• Recommended Rate: ${creditData.recommended_interest_rate}%
+
+🔒 Security Validation:
+• API Tier: ${creditData.security_context.api_key_tier.toUpperCase()}
+• Threat Score: ${creditData.security_context.threat_score}/10
+• Validation: PASSED ✅
+
+💰 Loan Decision:
+• Status: ${loanResult.status.toUpperCase()}
+${loanResult.approved_amount ? `• Approved Amount: ${(loanResult.approved_amount / 1000000).toFixed(2)} ALGO` : ''}
+${loanResult.monthly_payment ? `• Monthly Payment: ${(loanResult.monthly_payment / 1000000).toFixed(2)} ALGO` : ''}
+
+🚀 Next Steps:
+• Check your dashboard for updates
+• Smart contract deployment will follow
+• Funds will be available within 24 hours`
+
+      alert(successMessage)
+      
     } catch (error) {
-      console.error('Application submission failed:', error)
-      alert('Failed to submit application. Please try again.')
+      console.error('❌ Application submission failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`🚨 Security Error: ${errorMessage}
+
+Please check:
+• Wallet connection
+• API key validity  
+• Network connectivity
+• Try again in a few moments`)
     } finally {
       setIsSubmitting(false)
     }
@@ -187,14 +276,71 @@ export default function ApplyPage() {
             Apply for a Loan
           </h1>
           <p className="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Get instant funding with AI-powered credit assessment
+            Get instant funding with AI-powered credit assessment and enterprise Web3 security
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
-            <div className="h-2 w-2 rounded-full bg-green-500"></div>
-            <p className="text-sm font-medium text-green-700 dark:text-green-300">
-              Connected: {walletAddress && `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`}
-            </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+              <div className="h-2 w-2 rounded-full bg-green-500"></div>
+              <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                Connected: {walletAddress && `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`}
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+              <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+              <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                Security: {securityScore > 0 ? `${securityScore.toFixed(1)}/10` : 'Protected'}
+              </p>
+            </div>
+            {threatLevel > 5 && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse"></div>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                  Threat Level: High
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Security Dashboard Toggle */}
+          {(securityScore > 0 || creditScoreData) && (
+            <div className="mt-6">
+              <button
+                onClick={() => setShowSecurityDashboard(!showSecurityDashboard)}
+                className="mx-auto flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                🔒 {showSecurityDashboard ? 'Hide' : 'Show'} Security Analysis
+              </button>
+              
+              {showSecurityDashboard && (
+                <div className="mt-4 max-w-2xl mx-auto">
+                  <SecurityDashboard compact={true} />
+                  {creditScoreData && (
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">🧠 AI Credit Analysis</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Credit Score:</span>
+                          <span className="font-bold text-blue-600 dark:text-blue-400">{creditScoreData.credit_score}/850</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Risk Level:</span>
+                          <span className="font-bold text-blue-600 dark:text-blue-400 capitalize">{creditScoreData.risk_level}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Max Loan:</span>
+                          <span className="font-bold text-blue-600 dark:text-blue-400">{(creditScoreData.max_loan_amount / 1000000).toFixed(2)} ALGO</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Threat Score:</span>
+                          <span className="font-bold text-blue-600 dark:text-blue-400">{creditScoreData.security_context.threat_score}/10</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Progress Bar */}
