@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [showSecurityDemo, setShowSecurityDemo] = useState(false)
-  const [demoApiKey, setDemoApiKey] = useState('')
+  const [demoApiKey, setDemoApiKey] = useState('ac_live_915aa39a909e88d18f71c400bad2cfb0')
   const [isGeneratingKey, setIsGeneratingKey] = useState(false)
   const [walletApiKey, setWalletApiKey] = useState('')
   const [autoRiskAnalysis, setAutoRiskAnalysis] = useState<any>(null)

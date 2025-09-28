@@ -229,6 +229,34 @@ class AlgoCreditSecurityAPI {
   }
 
   /**
+   * Generate API key for wallet
+   */
+  async generateApiKey(walletAddress: string, tier: string = 'pro'): Promise<{
+    api_key: string
+    tier: string
+    usage_instructions: any
+  }> {
+    try {
+      const response = await fetch(`${this.config.baseUrl}/api/v1/security/generate-key?wallet_address=${walletAddress}&tier=${tier}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Failed to generate API key: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error generating API key:', error)
+      throw error
+    }
+  }
+
+  /**
    * Get security dashboard analytics
    */
   async getSecurityDashboard(apiKey: string, hours: number = 24): Promise<SecurityDashboard> {

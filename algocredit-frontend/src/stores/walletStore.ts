@@ -7,10 +7,36 @@ import { create } from 'zustand'
 import { PeraWalletConnect } from '@perawallet/connect'
 import algosdk from 'algosdk'
 
-// Initialize Pera Wallet
-const peraWallet = new PeraWalletConnect({
-  chainId: 416002, // TestNet chain ID
-})
+// Initialize Pera Wallet with fallback configurations
+let peraWallet: PeraWalletConnect
+
+try {
+  peraWallet = new PeraWalletConnect({
+    chainId: 416002, // TestNet chain ID
+  })
+  console.log('✅ PeraWallet initialized with chainId 416002')
+} catch (error) {
+  console.warn('⚠️ Failed to initialize with chainId, trying without:', error)
+  try {
+    // Fallback without chainId
+    peraWallet = new PeraWalletConnect()
+    console.log('✅ PeraWallet initialized without chainId')
+  } catch (fallbackError) {
+    console.error('❌ Failed to initialize PeraWallet:', fallbackError)
+    throw new Error('Could not initialize Pera Wallet')
+  }
+}
+
+// Add global error handler for PeraWallet
+if (typeof window !== 'undefined') {
+  peraWallet.connector?.on('error', (error: any) => {
+    console.error('🔴 PeraWallet global error:', error)
+    useWalletStore.setState({ 
+      error: `Wallet Error: ${error.message || 'Unknown error'}`,
+      isConnecting: false 
+    })
+  })
+}
 
 export interface WalletState {
   // Connection state
@@ -47,16 +73,39 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       console.log('🔵 Starting wallet connection...')
       set({ isConnecting: true, error: null })
 
-      // Connect to Pera Wallet
+      // Check if Pera Wallet is available
+      if (!peraWallet) {
+        throw new Error('Pera Wallet is not initialized')
+      }
+
+      // Disconnect any existing connections first
+      try {
+        peraWallet.disconnect()
+      } catch (e) {
+        console.log('🔄 No existing connection to disconnect')
+      }
+
       console.log('🔵 Connecting to Pera Wallet...')
-      const accounts = await peraWallet.connect()
       
-      if (accounts.length === 0) {
-        throw new Error('No accounts found')
+      // Add timeout for connection
+      const connectPromise = peraWallet.connect()
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Connection timeout after 30 seconds')), 30000)
+      })
+      
+      const accounts = await Promise.race([connectPromise, timeoutPromise]) as string[]
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts found. Please make sure you have accounts in your Pera Wallet.')
       }
 
       const walletAddress = accounts[0]
       console.log('✅ Wallet connected! Address:', walletAddress)
+      
+      // Validate the address format
+      if (!walletAddress || typeof walletAddress !== 'string' || walletAddress.length !== 58) {
+        throw new Error('Invalid wallet address format')
+      }
       
       // Set wallet immediately but with 0 balance initially
       set({
@@ -78,9 +127,25 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       
     } catch (error: any) {
       console.error('❌ Wallet connection error:', error)
+      
+      // More specific error messages
+      let errorMessage = 'Failed to connect wallet'
+      
+      if (error.message?.includes('rejected')) {
+        errorMessage = 'Wallet connection was rejected by user'
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Connection timed out. Please try again.'
+      } else if (error.message?.includes('No accounts')) {
+        errorMessage = 'No accounts found in wallet. Please create an account in Pera Wallet.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
       set({
         isConnecting: false,
-        error: error.message || 'Failed to connect wallet',
+        isConnected: false,
+        walletAddress: null,
+        error: errorMessage,
       })
     }
   },

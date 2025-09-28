@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSecurityStore } from '@/stores/securityStore'
+import { Button } from '@/components/Button'
 import { 
   ShieldCheckIcon, 
   ExclamationTriangleIcon,
@@ -16,7 +17,10 @@ import {
   EyeIcon,
   BoltIcon,
   CheckCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  DocumentDuplicateIcon,
+  PlusIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline'
 
 interface SecurityDashboardProps {
@@ -35,6 +39,10 @@ export function SecurityDashboard({ apiKey, compact = false }: SecurityDashboard
   } = useSecurityStore()
 
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null)
+  const [showApiKey, setShowApiKey] = useState(false)
+  const [apiKeyVisible, setApiKeyVisible] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [isGeneratingKey, setIsGeneratingKey] = useState(false)
 
   useEffect(() => {
     // Load dashboard data on mount
@@ -55,6 +63,45 @@ export function SecurityDashboard({ apiKey, compact = false }: SecurityDashboard
       if (interval) clearInterval(interval)
     }
   }, [apiKey])
+
+  // API Key Management Functions
+  const generateNewApiKey = async () => {
+    setIsGeneratingKey(true)
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/security/generate-key?wallet_address=C57BAHYM3QSQZWYOWB5HMNJUSBFCIZTNEK6JZX3VL2NDZ3UQ5HPOINCABU`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Update local apiKey - you might want to update this via your store
+        console.log('New API key generated:', data)
+        // Refresh dashboard
+        loadSecurityDashboard(data.api_key)
+      } else {
+        throw new Error('Failed to generate API key')
+      }
+    } catch (error) {
+      console.error('API key generation failed:', error)
+    } finally {
+      setIsGeneratingKey(false)
+    }
+  }
+
+  const copyApiKey = async () => {
+    if (apiKey) {
+      try {
+        await navigator.clipboard.writeText(apiKey)
+        setCopySuccess(true)
+        setTimeout(() => setCopySuccess(false), 2000)
+      } catch (error) {
+        console.error('Failed to copy API key:', error)
+      }
+    }
+  }
 
   if (isLoadingDashboard && !dashboard) {
     return (
@@ -236,14 +283,160 @@ export function SecurityDashboard({ apiKey, compact = false }: SecurityDashboard
         </div>
       </div>
 
+      {/* API Key Management */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+              <KeyIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                API Key Management
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Manage your Web3 Security API access
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={generateNewApiKey}
+            disabled={isGeneratingKey}
+            variant="secondary"
+            className="flex items-center space-x-2"
+          >
+            <PlusIcon className="h-4 w-4" />
+            <span>{isGeneratingKey ? 'Generating...' : 'Generate New'}</span>
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Current API Key */}
+          <div className="bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-gray-700 dark:to-indigo-900/30 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Current API Key
+              </label>
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={() => setApiKeyVisible(!apiKeyVisible)}
+                  variant="secondary"
+                  className="p-1 h-6 w-6"
+                >
+                  {apiKeyVisible ? (
+                    <EyeSlashIcon className="h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  onClick={copyApiKey}
+                  variant="secondary"
+                  className="p-1 h-6 w-6"
+                >
+                  <DocumentDuplicateIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="font-mono text-sm bg-white dark:bg-gray-800 rounded border p-3">
+              {apiKey ? (
+                apiKeyVisible ? apiKey : `${apiKey.slice(0, 12)}${'*'.repeat(20)}${apiKey.slice(-8)}`
+              ) : (
+                <span className="text-gray-500 dark:text-gray-400">No API key available</span>
+              )}
+            </div>
+            {copySuccess && (
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                ✓ API key copied to clipboard
+              </p>
+            )}
+          </div>
+
+          {/* API Key Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Usage Today</p>
+                  <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                    {displayDashboard.usage_statistics.usage_count}
+                  </p>
+                </div>
+                <ChartBarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="mt-2">
+                <div className="text-xs text-blue-600 dark:text-blue-400">
+                  Last used: {new Date(displayDashboard.usage_statistics.last_used).toLocaleTimeString()}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 dark:text-green-300">Rate Limit</p>
+                  <p className="text-xl font-bold text-green-900 dark:text-green-100">
+                    {Math.round(displayDashboard.rate_limit_status.tokens)}
+                  </p>
+                </div>
+                <BoltIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="mt-2">
+                <div className="text-xs text-green-600 dark:text-green-400">
+                  Status: {displayDashboard.rate_limit_status.status}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Tier</p>
+                  <p className="text-xl font-bold text-purple-900 dark:text-purple-100 capitalize">
+                    {displayDashboard.tier}
+                  </p>
+                </div>
+                <KeyIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="mt-2">
+                <div className="text-xs text-purple-600 dark:text-purple-400">
+                  Smart Contract: Active
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Usage Instructions */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+              Usage Instructions
+            </h4>
+            <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+              <div className="flex items-start space-x-2">
+                <span className="font-medium">cURL:</span>
+                <code className="bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                  curl -H "Authorization: Bearer {apiKey}" https://api.algocredit.com/v1/security/analyze
+                </code>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="font-medium">Header:</span>
+                <code className="bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                  X-API-Key: {apiKey?.slice(0, 12)}...
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Threat Analytics */}
-      {dashboard.threat_analytics.total_threats > 0 && (
+      {displayDashboard.threat_analytics && displayDashboard.threat_analytics.total_threats > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Threat Analytics (24h)
           </h3>
           <div className="space-y-3">
-            {Object.entries(dashboard.threat_analytics.threats_by_type).map(([type, count]) => (
+            {Object.entries(displayDashboard.threat_analytics.threats_by_type).map(([type, count]) => (
               <div key={type} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <ExclamationTriangleIcon className="h-5 w-5 text-orange-500" />
@@ -275,10 +468,10 @@ export function SecurityDashboard({ apiKey, compact = false }: SecurityDashboard
           </div>
           <div className="text-right">
             <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              {Math.round(dashboard.rate_limit_status.tokens)}
+              {Math.round(displayDashboard.rate_limit_status.tokens)}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-              {dashboard.rate_limit_status.status}
+              {displayDashboard.rate_limit_status.status}
             </p>
           </div>
         </div>
@@ -294,7 +487,7 @@ export function SecurityDashboard({ apiKey, compact = false }: SecurityDashboard
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">System Status</p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Last updated: {new Date(dashboard.generated_at * 1000).toLocaleTimeString()}
+                Last updated: {new Date((displayDashboard as any).generated_at * 1000).toLocaleTimeString()}
               </p>
             </div>
           </div>
