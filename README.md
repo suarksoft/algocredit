@@ -305,10 +305,10 @@ npm run build
 
 ## 📞 Support
 
-- **Documentation**: [docs.algocredit.io](https://docs.algocredit.io)
+
 - **Issues**: [GitHub Issues](https://github.com/suarksoft/algocredit/issues)
-- **Discord**: [Join our community](https://discord.gg/algocredit)
-- **Email**: support@algocredit.io
+
+- **Email**: dev.bugrakurnaz@gmail.com
 
 ## 📄 License
 
