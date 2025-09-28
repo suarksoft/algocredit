@@ -593,7 +593,7 @@ if (result.isSecure) {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-2xl p-12 border border-blue-400/30">
               <h3 className="text-4xl font-bold text-white mb-6">
-                Ready to Secure Your Algorand dApp?
+                Ready to Secure Your Algorand App?
               </h3>
               <p className="text-blue-200 text-xl mb-8 max-w-2xl mx-auto">
                 Join hundreds of developers protecting their Web3 applications with AlgoCredit Security Firewall.

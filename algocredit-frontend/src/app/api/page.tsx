@@ -151,22 +151,22 @@ export default function ApiPage() {
         </div>
 
         {/* API Documentation */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
           <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">API Endpoints</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">API Endpoints</h2>
           </div>
           
           <div className="space-y-8">
             {/* Transaction Analysis */}
-            <div className="border-l-4 border-blue-500 bg-blue-50 rounded-r-xl p-6">
+            <div className="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-r-xl p-6">
               <div className="flex items-center mb-4">
                 <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold mr-3">POST</span>
-                <h3 className="font-bold text-lg text-gray-900">Transaction Security Analysis</h3>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white">Transaction Security Analysis</h3>
               </div>
               <code className="bg-gray-900 text-green-400 px-4 py-2 rounded-lg text-sm block mb-4">
                 /api/web3-security/analyze
@@ -174,7 +174,7 @@ export default function ApiPage() {
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                     <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                     Request Body:
                   </h4>
@@ -190,7 +190,7 @@ export default function ApiPage() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                     Response:
                   </h4>
@@ -262,14 +262,14 @@ export default function ApiPage() {
         </div>
 
         {/* Test Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
           <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">API Test Console</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">API Test Console</h2>
           </div>
           
           <div className="space-y-6">
@@ -304,22 +304,22 @@ export default function ApiPage() {
         </div>
 
         {/* Rate Limits & Pricing */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
           <div className="flex items-center mb-8">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Pricing & Rate Limits</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Pricing & Rate Limits</h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-600 rounded-xl p-6 border border-gray-200 dark:border-slate-600">
               <div className="text-center">
-                <h3 className="font-bold text-xl mb-4 text-gray-900">Free Tier</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$0</div>
-                <div className="text-gray-600 text-sm mb-6">Perfect for testing</div>
+                <h3 className="font-bold text-xl mb-4 text-gray-900 dark:text-white">Free Tier</h3>
+                <div className="text-4xl font-bold text-gray-900 dark:text-white mb-4">$0</div>
+                <div className="text-gray-600 dark:text-gray-300 text-sm mb-6">Perfect for testing</div>
               </div>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
@@ -343,14 +343,14 @@ export default function ApiPage() {
               </ul>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-500 relative">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-6 border-2 border-blue-500 relative">
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span>
               </div>
               <div className="text-center">
-                <h3 className="font-bold text-xl mb-4 text-gray-900">Developer</h3>
-                <div className="text-4xl font-bold text-blue-600 mb-4">$29</div>
-                <div className="text-gray-600 text-sm mb-6">per month</div>
+                <h3 className="font-bold text-xl mb-4 text-gray-900 dark:text-white">Developer</h3>
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-4">$29</div>
+                <div className="text-gray-600 dark:text-gray-300 text-sm mb-6">per month</div>
               </div>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
@@ -380,11 +380,11 @@ export default function ApiPage() {
               </ul>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-gray-200">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl p-6 border border-gray-200 dark:border-slate-600">
               <div className="text-center">
-                <h3 className="font-bold text-xl mb-4 text-gray-900">Enterprise</h3>
-                <div className="text-4xl font-bold text-purple-600 mb-4">Custom</div>
-                <div className="text-gray-600 text-sm mb-6">Contact us</div>
+                <h3 className="font-bold text-xl mb-4 text-gray-900 dark:text-white">Enterprise</h3>
+                <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-4">Custom</div>
+                <div className="text-gray-600 dark:text-gray-300 text-sm mb-6">Contact us</div>
               </div>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
@@ -417,21 +417,21 @@ export default function ApiPage() {
         </div>
 
         {/* Security Features */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gray-200 dark:border-slate-700">
           <div className="flex items-center mb-8">
-            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Security Features</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Security Features</h2>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-200">
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl p-6 border border-red-200 dark:border-red-700/50">
               <div className="flex items-center mb-4">
                 <span className="text-2xl mr-3">🛡️</span>
-                <h3 className="font-bold text-lg text-gray-900">Threat Detection</h3>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white">Threat Detection</h3>
               </div>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
