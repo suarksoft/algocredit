@@ -72,9 +72,9 @@ npm run dev
 ```
 
 ### 4. Access the Platform
-- **Frontend**: http://localhost:3002
-- **Backend API**: http://localhost:8001
-- **API Docs**: http://localhost:8001/docs
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
 ## 🛠️ Installation
 
@@ -113,7 +113,7 @@ API_SECRET_KEY=your-secret-key
 
 **Frontend (.env.local)**
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8001
+NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_ALGORAND_NETWORK=testnet
 ```
 
